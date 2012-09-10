@@ -2,6 +2,22 @@
 #include <stdio.h>
 #include "disc.h"
 
+struct read_monitor{
+    int block_number;
+    int buffer_addr;
+    int request_time;
+    int receipt_time;
+    int completion_time;
+};
+
+struct write_monitor{
+    int block_number;
+    int buffer_addr;
+    int request_time;
+    int receipt_time;
+    int completion_time;
+};
+
 int clock = 0;
 
 void *disc_start(void *args){
@@ -10,6 +26,7 @@ void *disc_start(void *args){
 
     for(;;){
         //No-op
+        printf("Thread:%ld, Num:%d\n",pthread_self(),(*(int *) args));
     }
 }
 
@@ -21,6 +38,8 @@ int read(){
     int completion_time;
 
     //ask monitor for block number, buffer address and request time
+
+    //PTHREAD_MUTEX_ERRORCHECKER
 
     if(request_time > clock){
         clock = request_time;
