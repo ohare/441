@@ -4,21 +4,8 @@
 #include <assert.h>
 #include "worker.h"
 #include "disc.h"
+#include "tools.h"
  
-/*
-void *TaskCode(void *argument)
-{
-   int tid;
- 
-   tid = *((int *) argument);
-   printf("Hello World! It's me, thread %d!\n", tid);
- 
-   // optionally: insert more useful stuff here
- 
-   return NULL;
-}
-*/
-
 //Implements the master thread
 int main(void){
     int D; //Number of disc drives (1 <= D <= 16)
@@ -27,9 +14,14 @@ int main(void){
 
     //creates D queues
     D = 4;
-
     //initialises W reader-writer locks
     W = 6;
+
+    /* Initialise circular buffer array */
+    circ_buf *circ_buffers;
+
+    //TODO: get emalloc from old project
+    circ_buf = malloc(sizeof(circ_buf) * D);
 
     pthread_t disc_threads[D], worker_threads[W];
     int disc_thread_args[D], worker_thread_args[W];
@@ -37,6 +29,8 @@ int main(void){
 
     //starts D disk threads
     for (i=0; i < D; ++i) {
+       circ_buffers[i].head = 0;
+       circ_buffers[i].tail = 0;
        disc_thread_args[i] = i;
        printf("In main: creating disc thread %d\n", i);
        rc = pthread_create(&disc_threads[i], NULL, disc_start, (void *) &disc_thread_args[i]);

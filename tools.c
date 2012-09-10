@@ -8,44 +8,39 @@ typedef struct circular_buffer{
     int tail;
 } circ_buf;
 
-circ_buf cbuf;
-/* Initialise circular buffer */
-cbuf.head = 0;
-cbuf.tail = 0;
-
 /*
  * Writes to the circular buffer
  * If the buffer is full the first number will be overwritten
  */
-void write_circ_buf(int data){
+void write_circ_buf(circ_buf c, int data){
 
-    cbuf.content[cbuf.tail] = data;
-    cbuf.tail++;
-    if(cbuf.tail == cbuf.head){
-        cbuf.head++;
-        if(cbuf.head == BUFFER_SIZE){
-            cbuf.head = 0;
+    c.content[c.tail] = data;
+    c.tail++;
+    if(c.tail == c.head){
+        c.head++;
+        if(c.head == BUFFER_SIZE){
+            c.head = 0;
         }
     }
-    if(cbuf.tail == BUFFER_SIZE){
-        cbuf.tail = 0;
+    if(c.tail == BUFFER_SIZE){
+        c.tail = 0;
     }
 }
 
 /*
  * Reads from the circular buffer
  */
-int read_circ_buf(void){
+int read_circ_buf(circ_buf c){
     int read;
 
-    if(cbuf.head == cbuf.tail){
+    if(c.head == c.tail){
         return '\0';
     }
 
-    read = cbuf.content[cbuf.head];
-    cbuf.head++;
-    if(cbuf.head == BUFFER_SIZE){
-        cbuf.head = 0;
+    read = c.content[c.head];
+    c.head++;
+    if(c.head == BUFFER_SIZE){
+        c.head = 0;
     }
 
     return read;
@@ -54,8 +49,8 @@ int read_circ_buf(void){
 /*
  * Return whether circular buffer is empty or not
  */
-int is_circ_empty(void){
-    if(cbuf.head == cbuf.tail){
+int is_circ_empty(circ_buf c){
+    if(c.head == c.tail){
         return 1;
     }
 

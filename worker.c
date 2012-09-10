@@ -36,5 +36,4 @@ void *work(void *L){
     //release write lock on file o
     //release read lock on file i
 
-    return;
 }
