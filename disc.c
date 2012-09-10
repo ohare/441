@@ -5,6 +5,7 @@
 int clock = 0;
 
 void *disc_start(void *args){
+
     printf("I am disc:%d\n",(*(int *) args));
 
     for(;;){

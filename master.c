@@ -5,6 +5,7 @@
 #include "worker.h"
 #include "disc.h"
  
+/*
 void *TaskCode(void *argument)
 {
    int tid;
@@ -12,11 +13,11 @@ void *TaskCode(void *argument)
    tid = *((int *) argument);
    printf("Hello World! It's me, thread %d!\n", tid);
  
-   /* optionally: insert more useful stuff here */
+   // optionally: insert more useful stuff here
  
    return NULL;
 }
-
+*/
 
 //Implements the master thread
 int main(void){
@@ -26,6 +27,9 @@ int main(void){
 
     //creates D queues
     D = 4;
+
+    //initialises W reader-writer locks
+    W = 6;
 
     pthread_t disc_threads[D], worker_threads[W];
     int disc_thread_args[D], worker_thread_args[W];
@@ -41,10 +45,6 @@ int main(void){
             exit(EXIT_FAILURE);
        }
     }
- 
-
-    //initialises W reader-writer locks
-    W = 6;
 
     //starts W worker threads
     for (i=0; i < W; ++i) {
