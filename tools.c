@@ -1,12 +1,6 @@
+#include <stdlib.h>
+#include <stdio.h>
 #include "tools.h"
-
-#define BUFFER_SIZE 256                    /* Size of the circular buffer */
-
-typedef struct circular_buffer{
-    int content[BUFFER_SIZE];
-    int head;
-    int tail;
-} circ_buf;
 
 /*
  * Writes to the circular buffer
@@ -57,3 +51,11 @@ int is_circ_empty(circ_buf c){
     return 0;
 }
 
+void *emalloc(size_t s){
+    void *result = malloc(s);
+    if(result == NULL){
+        printf("Memory allocation failed!\n");
+        exit(EXIT_FAILURE);
+    }
+    return result;
+}

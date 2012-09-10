@@ -21,7 +21,7 @@ int main(void){
     circ_buf *circ_buffers;
 
     //TODO: get emalloc from old project
-    circ_buf = malloc(sizeof(circ_buf) * D);
+    circ_buffers = emalloc(sizeof(circ_buf) * D);
 
     pthread_t disc_threads[D], worker_threads[W];
     int disc_thread_args[D], worker_thread_args[W];
