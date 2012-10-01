@@ -12,6 +12,13 @@ void *disc_start(void *args){
     int disk_id = 0;
     info thread_info = *((info *)(args));
 
+    printf("HERE\n");
+
+    disk_id = get_id(thread_info);
+    if(disk_id < 0){
+        fprintf(stderr,"Error fetching disk_id\n");
+    }
+
     printf("I am disc:%d\n", disk_id);
 
     for(;;){

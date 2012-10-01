@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <pthread.h>
 #include "tools.h"
 
 /*
@@ -80,4 +81,26 @@ void *emalloc(size_t s){
         exit(EXIT_FAILURE);
     }
     return result;
+}
+
+int get_id(info i){
+    int n = 0;
+    pthread_t self_id;
+
+    self_id = pthread_self();
+
+    for(n = 0; n < i.D; n++){
+        printf("ID's match? %d,%d",i.disk_ids[n],self_id);
+        if(pthread_equal(i.disk_ids[n],self_id)){
+            return n;
+        }
+    }
+
+    for(n = 0; n < i.W; n++){
+        if(pthread_equal(i.work_ids[n],self_id)){
+            return n;
+        }
+    }
+
+    return -1;
 }

@@ -21,6 +21,8 @@ void *work(void *args){
     char write_buf[BUF_SIZE];
     void *null = 0;
 
+    work_id = get_id(thread_info);
+
     printf("IamA Worker %d\n",work_id);
         
     pthread_mutex_lock(&thread_info.read_mons[d].lock);

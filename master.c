@@ -34,6 +34,10 @@ int main(int argc, char *argv[]){
     thread_info.disk_ids = emalloc(sizeof(int) * D);
     thread_info.work_ids = emalloc(sizeof(int) * W);
 
+    /* Store number of disks and workers */
+    thread_info.D = D;
+    thread_info.W = W;
+
     pthread_t disc_threads[D], worker_threads[W];
     int disc_thread_args[D], worker_thread_args[W];
     int rc, i;
