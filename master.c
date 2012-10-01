@@ -40,24 +40,24 @@ int main(int argc, char *argv[]){
 
     //starts D disk threads
     for (i=0; i < D; ++i) {
-       read_queues[i].head = 0;
-       read_queues[i].tail = 0;
-       write_queues[i].head = 0;
-       write_queues[i].tail = 0;
-        if (pthread_mutex_init(&read_lock, NULL) != 0){
+        read_queues[i].head = 0;
+        read_queues[i].tail = 0;
+        write_queues[i].head = 0;
+        write_queues[i].tail = 0;
+        if (pthread_mutex_init(&read_locks[i], NULL) != 0){
             printf("\nDisk: %d, read mutex init failed\n",i);
         }
 
-        if (pthread_mutex_init(&write_lock, NULL) != 0){
+        if (pthread_mutex_init(&write_locks[i], NULL) != 0){
             printf("\nDisk: %d, write mutex init failed\n",i);
         }
-       disc_thread_args[i] = i;
-       printf("In main: creating disc thread %d\n", i);
-       rc = pthread_create(&disc_threads[i], NULL, disc_start, (void *) &disc_thread_args[i]);
-       if(rc != 0){
+        disc_thread_args[i] = i;
+        printf("In main: creating disc thread %d\n", i);
+        rc = pthread_create(&disc_threads[i], NULL, disc_start, (void *) &disc_thread_args[i]);
+        if(rc != 0){
             printf("Creation of disc thread:%d failed, code:%d\n",i,rc);
             exit(EXIT_FAILURE);
-       }
+        }
     }
 
     //starts W worker threads

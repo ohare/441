@@ -51,6 +51,20 @@ int is_circ_empty(circ_buf c){
     return 0;
 }
 
+/*
+ * Return whether circular buffer is full or not
+ */
+int is_circ_full(circ_buf c){
+    if(c.head == c.tail){
+        return 1;
+    }
+
+    return 0;
+}
+
+/*
+ * Malloc the given space report error if failure
+ */
 void *emalloc(size_t s){
     void *result = malloc(s);
     if(result == NULL){
