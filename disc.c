@@ -7,42 +7,48 @@
 int my_clock = 0;
 
 void *disc_start(void *args){
+    int work_id = 0;
+    int disk_id = (*(int *) args);
 
-    printf("I am disc:%d\n",(*(int *) args));
+    printf("I am disc:%d\n", disk_id);
 
     for(;;){
-        //No-op
+        if(disk_id == 0){
+            //printf("Checking read_queues[%d]\n",disk_id);
+        }
+        if(!(is_circ_empty(read_queues[disk_id]))){    
+            printf("Stuff to read");
+            work_id = read_circ_buf(read_queues[disk_id]);
+            read(read_mons[work_id]);
+        }
+        if(!(is_circ_empty(write_queues[disk_id]))){    
+            printf("Stuff to write");
+            work_id = read_circ_buf(write_queues[disk_id]);
+            write(write_mons[work_id]);
+        }
         //printf("Thread:%u, Num:%d\n",pthread_self(),(*(int *) args));
     }
 }
 
 int read(rm rmon){
-    /*
-    int block_no;
-    void* buf_addr;
-    int request_time;
-    int receipt_time;
-    int completion_time;
-    */
-
-    //ask monitor for block number, buffer address and request time
-
     //PTHREAD_MUTEX_ERRORCHECKER
 
     if(rmon.request_time > my_clock){
         my_clock = rmon.request_time;
     }
 
+    printf("Read: disk clock is now:%d",my_clock);
+
     rmon.receipt_time = my_clock;
 
-    //This is pretend??
-    //read(fd,buf_addr,4000);
+    //Pretend to read in memory to buffer
 
     my_clock = 10 + 12 * drand48();
 
     rmon.completion_time = my_clock;
 
     //update monitor with receipt time and completion time
+    rmon.completion_time = my_clock;
 
     //do anything else it needs to let requestor know to proceed
 
@@ -50,30 +56,20 @@ int read(rm rmon){
 }
 
 int write(wm wmon){
-    /*
-    int block_no;
-    void* block_addr;
-    int request_time;
-    int receipt_time;
-    int completion_time;
-    */
-
-    //ask monitor for block number, buffer address and request time
 
     if(wmon.request_time > my_clock){
         my_clock = wmon.request_time;
     }
 
+    printf("Write: Disk clock is now:%d",my_clock);
+
     wmon.receipt_time = my_clock;
 
-    //This is pretend??
-    //write(fd,block_addr,4000);
+    //Pretend to write to buffer
 
     my_clock = 10 + 12 * drand48();
 
     wmon.completion_time = my_clock;
-
-    //update monitor with receipt time and completion time
 
     //do anything else it needs to let requestor know to proceed
 
