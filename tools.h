@@ -10,6 +10,7 @@ typedef struct circular_buffer{
 } circ_buf;
 
 typedef struct read_monitor{
+    pthread_mutex_t lock;
     int block_number;
     void* buffer_addr;
     int request_time;
@@ -18,6 +19,7 @@ typedef struct read_monitor{
 } rm;
 
 typedef struct write_monitor{
+    pthread_mutex_t lock;
     int block_number;
     void* buffer_addr;
     int request_time;
@@ -30,9 +32,9 @@ int read_circ_buf(circ_buf c);
 int is_circ_empty(circ_buf c);
 int is_circ_full(circ_buf c);
 void* emalloc(size_t s);
-pthread_mutex_t *read_locks;
-pthread_mutex_t *write_locks;
 circ_buf *read_queues;
 circ_buf *write_queues;
+rm *read_mons;
+wm *write_mons;
 
 #endif

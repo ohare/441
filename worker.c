@@ -21,14 +21,14 @@ void *work(void *L){
 
     if(i < o){
         //obtain a read lock on file i
-        pthread_mutex_lock(&read_locks[0]);
+        pthread_mutex_lock(&read_mons[0].lock);
         //obtain a write lock on file o
-        pthread_mutex_lock(&write_locks[0]);
+        pthread_mutex_lock(&write_mons[0].lock);
     } else {
         //obtain a write lock on file o
-        pthread_mutex_lock(&write_locks[0]);
+        pthread_mutex_lock(&write_mons[0].lock);
         //obtain a read lock on file i
-        pthread_mutex_lock(&read_locks[0]);
+        pthread_mutex_lock(&read_mons[0].lock);
     }
 
     //read from block 0 of file i
@@ -40,8 +40,8 @@ void *work(void *L){
     }
 
     //release write lock on file o
-    pthread_mutex_unlock(&write_locks[0]);
+    pthread_mutex_unlock(&write_mons[0].lock);
     //release read lock on file i
-    pthread_mutex_unlock(&read_locks[0]);
+    pthread_mutex_unlock(&read_mons[0].lock);
 
 }

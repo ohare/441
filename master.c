@@ -15,20 +15,14 @@ int main(int argc, char *argv[]){
     //Number of iterations each worker does(1 <= L)
     int const L = atoi(argv[3]);
 
-    //creates D queues
+    /* Debugging */
     printf("D:%d",D);
-    //initialises W reader-writer locks
     printf("\nW:%d",W);
-
     printf("\nL:%d\n",L);
 
-    //Initialise read and write lock array
-    read_locks = emalloc(sizeof(pthread_mutex_t) * D);
-    write_locks = emalloc(sizeof(pthread_mutex_t) * D);
-
-    /* Initialise array of read/write queues for disk */
-    read_queues = emalloc(sizeof(circ_buf) * D);
-    write_queues = emalloc(sizeof(circ_buf) * D);
+    /* Initialises W reader-writer locks */
+    read_mons = emalloc(sizeof(rm) * W);
+    write_mons = emalloc(sizeof(wm) * W);
 
     /* Initialise array of read/write queues for disk */
     read_queues = emalloc(sizeof(circ_buf) * D);
@@ -44,11 +38,11 @@ int main(int argc, char *argv[]){
         read_queues[i].tail = 0;
         write_queues[i].head = 0;
         write_queues[i].tail = 0;
-        if (pthread_mutex_init(&read_locks[i], NULL) != 0){
+        if (pthread_mutex_init(&read_mons[i].lock, NULL) != 0){
             printf("\nDisk: %d, read mutex init failed\n",i);
         }
 
-        if (pthread_mutex_init(&write_locks[i], NULL) != 0){
+        if (pthread_mutex_init(&write_mons[i].lock, NULL) != 0){
             printf("\nDisk: %d, write mutex init failed\n",i);
         }
         disc_thread_args[i] = i;
