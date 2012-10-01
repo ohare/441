@@ -7,20 +7,24 @@
 #include "tools.h"
  
 //Implements the master thread
-int main(void){
-    int D; //Number of disc drives (1 <= D <= 16)
-    int W; //Number of worker threads (1 <= W <= 16)
-    int L; //Number of iterations each worker does(1 <= L)
+int main(int argc, char *argv[]){
+     //Number of disc drives (1 <= D <= 16)
+    int const D = atoi(argv[1]);    
+    //Number of worker threads (1 <= W <= 16)
+    int const W = atoi(argv[2]);
+    //Number of iterations each worker does(1 <= L)
+    int const L = atoi(argv[3]);
 
     //creates D queues
-    D = 4;
+    printf("D:%d",D);
     //initialises W reader-writer locks
-    W = 6;
+    printf("D:%d",W);
+
+    printf("L:%d",L);
 
     /* Initialise circular buffer array */
     circ_buf *circ_buffers;
 
-    //TODO: get emalloc from old project
     circ_buffers = emalloc(sizeof(circ_buf) * D);
 
     pthread_t disc_threads[D], worker_threads[W];
