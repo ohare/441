@@ -19,7 +19,7 @@ void write_circ_buf(circ_buf c, int data){
     if(c.tail == BUFFER_SIZE){
         c.tail = 0;
     }
-    //printf("circ buf wrote:%d, head:%d, tail:%d\n",data,c.head,c.tail);
+    printf("circ buf wrote:%d, head:%d, tail:%d\n",data,c.head,c.tail);
 }
 
 /*
@@ -48,6 +48,7 @@ int read_circ_buf(circ_buf c){
  */
 int is_circ_empty(circ_buf c){
     if(c.head == c.tail){
+        //printf("Circ buffer is empty\n");
         return 1;
     }
 

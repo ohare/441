@@ -27,14 +27,19 @@ typedef struct write_monitor{
     int completion_time;
 } wm;
 
+typedef struct info_t{
+    pthread_t *disk_ids;
+    pthread_t *work_ids;
+    circ_buf *read_queues;
+    circ_buf *write_queues;
+    rm *read_mons;
+    wm *write_mons;
+} info;
+
 void write_circ_buf(circ_buf c, int data);
 int read_circ_buf(circ_buf c);
 int is_circ_empty(circ_buf c);
 int is_circ_full(circ_buf c);
 void* emalloc(size_t s);
-circ_buf *read_queues;
-circ_buf *write_queues;
-rm *read_mons;
-wm *write_mons;
 
 #endif

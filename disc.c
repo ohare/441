@@ -8,7 +8,9 @@ int my_clock = 0;
 
 void *disc_start(void *args){
     int work_id = 0;
-    int disk_id = (*(int *) args);
+    //int disk_id = (*(int *) args);
+    int disk_id = 0;
+    info thread_info = *((info *)(args));
 
     printf("I am disc:%d\n", disk_id);
 
@@ -16,15 +18,15 @@ void *disc_start(void *args){
         if(disk_id == 0){
             //printf("Checking read_queues[%d]\n",disk_id);
         }
-        if(!(is_circ_empty(read_queues[disk_id]))){    
+        if(!(is_circ_empty(thread_info.read_queues[disk_id]))){    
             printf("Stuff to read");
-            work_id = read_circ_buf(read_queues[disk_id]);
-            read(read_mons[work_id]);
+            work_id = read_circ_buf(thread_info.read_queues[disk_id]);
+            read(thread_info.read_mons[work_id]);
         }
-        if(!(is_circ_empty(write_queues[disk_id]))){    
+        if(!(is_circ_empty(thread_info.write_queues[disk_id]))){    
             printf("Stuff to write");
-            work_id = read_circ_buf(write_queues[disk_id]);
-            write(write_mons[work_id]);
+            work_id = read_circ_buf(thread_info.write_queues[disk_id]);
+            write(thread_info.write_mons[work_id]);
         }
         //printf("Thread:%u, Num:%d\n",pthread_self(),(*(int *) args));
     }
