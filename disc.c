@@ -2,22 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "disc.h"
-
-struct read_monitor{
-    int block_number;
-    void* buffer_addr;
-    int request_time;
-    int receipt_time;
-    int completion_time;
-} rm;
-
-struct write_monitor{
-    int block_number;
-    void* buffer_addr;
-    int request_time;
-    int receipt_time;
-    int completion_time;
-} wm;
+#include "tools.h"
 
 int my_clock = 0;
 
@@ -31,7 +16,7 @@ void *disc_start(void *args){
     }
 }
 
-int read(){
+int read(rm rmon){
     /*
     int block_no;
     void* buf_addr;
@@ -44,18 +29,18 @@ int read(){
 
     //PTHREAD_MUTEX_ERRORCHECKER
 
-    if(rm.request_time > my_clock){
-        my_clock = rm.request_time;
+    if(rmon.request_time > my_clock){
+        my_clock = rmon.request_time;
     }
 
-    rm.receipt_time = my_clock;
+    rmon.receipt_time = my_clock;
 
     //This is pretend??
     //read(fd,buf_addr,4000);
 
     my_clock = 10 + 12 * drand48();
 
-    rm.completion_time = my_clock;
+    rmon.completion_time = my_clock;
 
     //update monitor with receipt time and completion time
 
@@ -64,7 +49,7 @@ int read(){
     return 0;
 }
 
-int write(){
+int write(wm wmon){
     /*
     int block_no;
     void* block_addr;
@@ -75,18 +60,18 @@ int write(){
 
     //ask monitor for block number, buffer address and request time
 
-    if(wm.request_time > my_clock){
-        my_clock = wm.request_time;
+    if(wmon.request_time > my_clock){
+        my_clock = wmon.request_time;
     }
 
-    wm.receipt_time = my_clock;
+    wmon.receipt_time = my_clock;
 
     //This is pretend??
     //write(fd,block_addr,4000);
 
     my_clock = 10 + 12 * drand48();
 
-    wm.completion_time = my_clock;
+    wmon.completion_time = my_clock;
 
     //update monitor with receipt time and completion time
 

@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <pthread.h>
 #include "worker.h"
+#include "tools.h"
 
 void *work(void *L){
     int i = 0;
@@ -19,10 +21,14 @@ void *work(void *L){
 
     if(i < o){
         //obtain a read lock on file i
+        pthread_mutex_lock(&read_lock);
         //obtain a write lock on file o
+        pthread_mutex_lock(&write_lock);
     } else {
         //obtain a write lock on file o
+        pthread_mutex_lock(&write_lock);
         //obtain a read lock on file i
+        pthread_mutex_lock(&read_lock);
     }
 
     //read from block 0 of file i
@@ -34,6 +40,8 @@ void *work(void *L){
     }
 
     //release write lock on file o
+    pthread_mutex_unlock(&write_lock);
     //release read lock on file i
+    pthread_mutex_unlock(&read_lock);
 
 }

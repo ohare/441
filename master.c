@@ -18,14 +18,21 @@ int main(int argc, char *argv[]){
     //creates D queues
     printf("D:%d",D);
     //initialises W reader-writer locks
-    printf("D:%d",W);
+    printf("\nW:%d",W);
 
-    printf("L:%d",L);
+    printf("\nL:%d\n",L);
 
-    /* Initialise circular buffer array */
-    circ_buf *circ_buffers;
+    //Initialise read and write lock array
+    read_locks = emalloc(sizeof(pthread_mutex_t) * D);
+    write_locks = emalloc(sizeof(pthread_mutex_t) * D);
 
-    circ_buffers = emalloc(sizeof(circ_buf) * D);
+    /* Initialise array of read/write queues for disk */
+    read_queues = emalloc(sizeof(circ_buf) * D);
+    write_queues = emalloc(sizeof(circ_buf) * D);
+
+    /* Initialise array of read/write queues for disk */
+    read_queues = emalloc(sizeof(circ_buf) * D);
+    write_queues = emalloc(sizeof(circ_buf) * D);
 
     pthread_t disc_threads[D], worker_threads[W];
     int disc_thread_args[D], worker_thread_args[W];
@@ -33,8 +40,17 @@ int main(int argc, char *argv[]){
 
     //starts D disk threads
     for (i=0; i < D; ++i) {
-       circ_buffers[i].head = 0;
-       circ_buffers[i].tail = 0;
+       read_queues[i].head = 0;
+       read_queues[i].tail = 0;
+       write_queues[i].head = 0;
+       write_queues[i].tail = 0;
+        if (pthread_mutex_init(&read_lock, NULL) != 0){
+            printf("\nDisk: %d, read mutex init failed\n",i);
+        }
+
+        if (pthread_mutex_init(&write_lock, NULL) != 0){
+            printf("\nDisk: %d, write mutex init failed\n",i);
+        }
        disc_thread_args[i] = i;
        printf("In main: creating disc thread %d\n", i);
        rc = pthread_create(&disc_threads[i], NULL, disc_start, (void *) &disc_thread_args[i]);
