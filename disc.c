@@ -16,7 +16,7 @@ void *disc_start(void *args){
 
     //printf("HERE\n");
 
-    disk_id = get_id(thread_info);
+    disk_id = get_id(thread_info, pthread_self());
     if(disk_id < 0){
         fprintf(stderr,"Error fetching disk_id\n");
     }

@@ -21,7 +21,7 @@ void *work(void *args){
     char write_buf[BUF_SIZE];
     void *null = 0;
 
-    work_id = get_id(thread_info);
+    work_id = get_id(thread_info, pthread_self());
 
     printf("IamA Worker %d\n",work_id);
         
