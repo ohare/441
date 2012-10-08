@@ -8,12 +8,17 @@
  
 //Implements the master thread
 int main(int argc, char *argv[]){
-     //Number of disc drives (1 <= D <= 16)
+    if(argc < 4){
+        printf("Not enough arguments:%d\n",argc);
+        exit(EXIT_FAILURE); 
+    }
+    //Number of disc drives (1 <= D <= 16)
     int const D = atoi(argv[1]);    
     //Number of worker threads (1 <= W <= 16)
     int const W = atoi(argv[2]);
     //Number of iterations each worker does(1 <= L)
     int const L = atoi(argv[3]);
+
 
     /* Debugging */
     printf("D:%d",D);
