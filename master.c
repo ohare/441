@@ -40,7 +40,7 @@ int main(int argc, char *argv[]){
 
     /* Store number of disks and workers */
     thread_info.D = D;
-    printf("(master) Set number of disks to:%d\n",thread_info.D);
+    //printf("(master) Set number of disks to:%d\n",thread_info.D);
     thread_info.W = W;
 
     pthread_t disc_threads[D], worker_threads[W];
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]){
         disc_thread_args[i] = i;
         printf("In main: creating disc thread %d\n", i);
         //rc = pthread_create(&disc_threads[i], NULL, disc_start, (void *) &disc_thread_args[i]);
-        printf("(master) info addr:%d\n",&thread_info);
+        //printf("(master) info addr:%d\n",&thread_info);
         rc = pthread_create(&disc_threads[i], NULL, disc_start, &thread_info);
         if(rc != 0){
             printf("Creation of disc thread:%d failed, code:%d\n",i,rc);
@@ -83,7 +83,7 @@ int main(int argc, char *argv[]){
             printf("Creation of worker thread:%d failed, code:%d\n",i,rc);
             exit(EXIT_FAILURE);
         }
-        thread_info.work_ids[i] = disc_threads[i];
+        thread_info.work_ids[i] = worker_threads[i];
     }
 
     //waits for worker threads to complete

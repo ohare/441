@@ -12,9 +12,7 @@ void *disc_start(void *args){
     int disk_id = 0;
     info thread_info = *((info *)(args));
 
-    printf("(disc_start) info addr:%d\n",&thread_info);
-
-    //printf("HERE\n");
+    //printf("(disc_start) info addr:%d\n",&thread_info);
 
     disk_id = get_id(thread_info, pthread_self());
     if(disk_id < 0){
@@ -24,6 +22,7 @@ void *disc_start(void *args){
     printf("I am disc:%d\n", disk_id);
 
     for(;;){
+        //Debugging?
         if(disk_id == 0){
             //printf("Checking read_queues[%d]\n",disk_id);
         }

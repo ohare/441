@@ -89,24 +89,25 @@ int get_id(info i, pthread_t self_id){
 
     //self_id = pthread_self();
 
-    //for(;;){
-    printf("(get_id) Number of disks:%d\n",i.D);
-    for(n = 0; n < i.D; n++){
-        printf("(get_id) Disk ID's match? %d,%d\n",i.disk_ids[n],self_id);
-        if(pthread_equal(i.disk_ids[n],self_id)){
-            printf("(get_id) Yes! I am disk:%d\n",n);
-            return n;
+    //Check lists of disc and worker thread ids to get the 'number' of the thread
+    for(;;){
+        //printf("(get_id) Number of disks:%d\n",i.D);
+        for(n = 0; n < i.D; n++){
+            //printf("(get_id) Disk ID's match? %d,%d\n",i.disk_ids[n],self_id);
+            if(pthread_equal(i.disk_ids[n],self_id)){
+                //printf("(get_id) Yes! I am disk:%d\n",n);
+                return n;
+            }
         }
-    }
 
-    for(n = 0; n < i.W; n++){
-        printf("(get_id) Worker ID's match? %d,%d\n",i.disk_ids[n],self_id);
-        if(pthread_equal(i.work_ids[n],self_id)){
-            printf("(get_id) Yes! I am worker:%d\n",n);
-            return n;
+        for(n = 0; n < i.W; n++){
+            //printf("(get_id) Worker ID's match? %d,%d\n",i.disk_ids[n],self_id);
+            if(pthread_equal(i.work_ids[n],self_id)){
+                //printf("(get_id) Yes! I am worker:%d\n",n);
+                return n;
+            }
         }
     }
-    //}
 
     return -1;
 }
