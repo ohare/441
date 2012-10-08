@@ -12,7 +12,9 @@ void *disc_start(void *args){
     int disk_id = 0;
     info thread_info = *((info *)(args));
 
-    printf("HERE\n");
+    printf("(disc_start) info addr:%d\n",&thread_info);
+
+    //printf("HERE\n");
 
     disk_id = get_id(thread_info);
     if(disk_id < 0){

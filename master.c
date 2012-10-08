@@ -19,7 +19,6 @@ int main(int argc, char *argv[]){
     //Number of iterations each worker does(1 <= L)
     int const L = atoi(argv[3]);
 
-
     /* Debugging */
     printf("D:%d",D);
     printf("\nW:%d",W);
@@ -41,6 +40,7 @@ int main(int argc, char *argv[]){
 
     /* Store number of disks and workers */
     thread_info.D = D;
+    printf("(master) Set number of disks to:%d\n",thread_info.D);
     thread_info.W = W;
 
     pthread_t disc_threads[D], worker_threads[W];
@@ -55,7 +55,9 @@ int main(int argc, char *argv[]){
         thread_info.write_queues[i].tail = 0;
         disc_thread_args[i] = i;
         printf("In main: creating disc thread %d\n", i);
-        rc = pthread_create(&disc_threads[i], NULL, disc_start, (void *) &disc_thread_args[i]);
+        //rc = pthread_create(&disc_threads[i], NULL, disc_start, (void *) &disc_thread_args[i]);
+        printf("(master) info addr:%d\n",&thread_info);
+        rc = pthread_create(&disc_threads[i], NULL, disc_start, &thread_info);
         if(rc != 0){
             printf("Creation of disc thread:%d failed, code:%d\n",i,rc);
             exit(EXIT_FAILURE);
@@ -75,7 +77,8 @@ int main(int argc, char *argv[]){
         }
         worker_thread_args[i] = i;
         printf("In main: creating worker thread %d\n", i);
-        rc = pthread_create(&worker_threads[i], NULL, work, (void *) &worker_thread_args[i]);
+        //rc = pthread_create(&worker_threads[i], NULL, work, (void *) &worker_thread_args[i]);
+        rc = pthread_create(&worker_threads[i], NULL, work, &thread_info);
         if(rc != 0){
             printf("Creation of worker thread:%d failed, code:%d\n",i,rc);
             exit(EXIT_FAILURE);

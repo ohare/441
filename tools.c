@@ -89,9 +89,11 @@ int get_id(info i){
 
     self_id = pthread_self();
 
+    printf("(get_id) Number of disks:%d\n",i.D);
     for(n = 0; n < i.D; n++){
-        printf("ID's match? %d,%d",i.disk_ids[n],self_id);
+        printf("ID's match? %d,%d\n",i.disk_ids[n],self_id);
         if(pthread_equal(i.disk_ids[n],self_id)){
+            printf("(get_id) Yes! I am disk:%d\n",n);
             return n;
         }
     }
