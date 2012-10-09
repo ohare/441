@@ -50,6 +50,9 @@ int main(int argc, char *argv[]){
     int disc_thread_args[D], worker_thread_args[W];
     int rc, i;
 
+    pthread_mutexattr_t mutex_attr;
+    pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_ERRORCHECK);
+
     //starts D disc threads
     for (i=0; i < D; ++i) {
         thread_info.read_queues[i].head = 0;
@@ -72,10 +75,10 @@ int main(int argc, char *argv[]){
     //starts W worker threads
     for (i=0; i < W; ++i) {
         /* Initialise read-write locks */
-        if (pthread_mutex_init(&thread_info.read_mons[i].lock, NULL) != 0){
+        if (pthread_mutex_init(&thread_info.read_mons[i].lock, &mutex_attr) != 0){
             printf("\nWorker: %d, read mutex init failed\n",i);
         }
-        if (pthread_mutex_init(&thread_info.write_mons[i].lock, NULL) != 0){
+        if (pthread_mutex_init(&thread_info.write_mons[i].lock, &mutex_attr) != 0){
             printf("\nWorker: %d, write mutex init failed\n",i);
         }
         worker_thread_args[i] = i;
