@@ -32,7 +32,9 @@ void *disc_start(void *args){
             work_id = read_circ_buf(&thread_info.write_queues[disc_id]);
             write(&thread_info.write_mons[work_id]);
         }
-        if(thread_info.disc_kill[disc_id] == 1){
+        if(is_circ_empty(&thread_info.write_queues[disc_id]) &&
+            is_circ_empty(&thread_info.read_queues[disc_id]) &&
+            thread_info.disc_kill[disc_id] == 1){
             break;
         }
         //printf("Thread:%u, Num:%d\n",pthread_self(),(*(int *) args));

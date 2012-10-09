@@ -50,6 +50,7 @@ int main(int argc, char *argv[]){
     int disc_thread_args[D], worker_thread_args[W];
     int rc, i;
 
+    //Set PTHREAD_MUTEX_ERRORCHECK
     pthread_mutexattr_t mutex_attr;
     pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_ERRORCHECK);
 
@@ -60,7 +61,7 @@ int main(int argc, char *argv[]){
         thread_info.write_queues[i].head = 0;
         thread_info.write_queues[i].tail = 0;
         disc_thread_args[i] = i;
-        printf("In main: creating disc thread %d\n", i);
+        printf("Creating disc thread %d\n", i);
         //rc = pthread_create(&disc_threads[i], NULL, disc_start, (void *) &disc_thread_args[i]);
         //printf("(master) info addr:%d\n",&thread_info);
         rc = pthread_create(&disc_threads[i], NULL, disc_start, &thread_info);
@@ -82,7 +83,7 @@ int main(int argc, char *argv[]){
             printf("\nWorker: %d, write mutex init failed\n",i);
         }
         worker_thread_args[i] = i;
-        printf("In main: creating worker thread %d\n", i);
+        printf("Creating worker thread %d\n", i);
         //rc = pthread_create(&worker_threads[i], NULL, work, (void *) &worker_thread_args[i]);
         rc = pthread_create(&worker_threads[i], NULL, work, &thread_info);
         if(rc != 0){

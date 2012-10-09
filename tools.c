@@ -39,7 +39,7 @@ int read_circ_buf(circ_buf *c){
         c->head = 0;
     }
 
-    printf("circ buf read:%d\n",read);
+    printf("circ buf read:%d, head:%d, tail:%d\n",read,c->head,c->tail);
 
     return read;
 }
