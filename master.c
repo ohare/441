@@ -30,24 +30,24 @@ int main(int argc, char *argv[]){
     thread_info.read_mons = emalloc(sizeof(rm) * W);
     thread_info.write_mons = emalloc(sizeof(wm) * W);
 
-    /* Initialise array of read/write queues for disk */
+    /* Initialise array of read/write queues for disc */
     thread_info.read_queues = emalloc(sizeof(circ_buf) * D);
     thread_info.write_queues = emalloc(sizeof(circ_buf) * D);
 
     /* Initialise array of ids */
-    thread_info.disk_ids = emalloc(sizeof(int) * D);
+    thread_info.disc_ids = emalloc(sizeof(int) * D);
     thread_info.work_ids = emalloc(sizeof(int) * W);
 
-    /* Store number of disks and workers */
+    /* Store number of discs and workers */
     thread_info.D = D;
-    //printf("(master) Set number of disks to:%d\n",thread_info.D);
+    //printf("(master) Set number of discs to:%d\n",thread_info.D);
     thread_info.W = W;
 
     pthread_t disc_threads[D], worker_threads[W];
     int disc_thread_args[D], worker_thread_args[W];
     int rc, i;
 
-    //starts D disk threads
+    //starts D disc threads
     for (i=0; i < D; ++i) {
         thread_info.read_queues[i].head = 0;
         thread_info.read_queues[i].tail = 0;
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]){
             exit(EXIT_FAILURE);
         }
         //printf("Creation of disc thread:%u successful\n",disc_threads[i]);
-        thread_info.disk_ids[i] = disc_threads[i];
+        thread_info.disc_ids[i] = disc_threads[i];
     }
 
     //starts W worker threads

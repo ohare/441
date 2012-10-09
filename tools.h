@@ -28,7 +28,7 @@ typedef struct write_monitor{
 } wm;
 
 typedef struct info_t{
-    pthread_t *disk_ids;
+    pthread_t *disc_ids;
     pthread_t *work_ids;
     circ_buf *read_queues;
     circ_buf *write_queues;

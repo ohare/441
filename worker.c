@@ -62,7 +62,7 @@ void *work(void *args){
         thread_info.read_mons[work_id].request_time = clock;
         //printf("Worker:%d, writing to read_queues[%d], value:%d\n",work_id,d,work_id);
         write_circ_buf(&thread_info.read_queues[d], work_id);
-        //get back time from disk
+        //get back time from disc
 
         //write that 1 kiB record to output file o
         thread_info.write_mons[work_id].block_number = count;
