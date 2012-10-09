@@ -7,8 +7,21 @@
  * Writes to the circular buffer
  * If the buffer is full the first number will be overwritten
  */
-void write_circ_buf(circ_buf c, int data){
+void write_circ_buf(circ_buf *c, int data){
 
+    c->content[c->tail] = data;
+    c->tail++;
+    if(c->tail == c->head){
+        c->head++;
+        if(c->head == BUFFER_SIZE){
+            c->head = 0;
+        }
+    }
+    if(c->tail == BUFFER_SIZE){
+        c->tail = 0;
+    }
+    printf("circ buf wrote:%d, head:%d, tail:%d\n",data,c->head,c->tail);
+/*
     c.content[c.tail] = data;
     c.tail++;
     if(c.tail == c.head){
@@ -21,22 +34,23 @@ void write_circ_buf(circ_buf c, int data){
         c.tail = 0;
     }
     printf("circ buf wrote:%d, head:%d, tail:%d\n",data,c.head,c.tail);
+*/
 }
 
 /*
  * Reads from the circular buffer
  */
-int read_circ_buf(circ_buf c){
+int read_circ_buf(circ_buf *c){
     int read;
 
-    if(c.head == c.tail){
+    if(c->head == c->tail){
         return '\0';
     }
 
-    read = c.content[c.head];
-    c.head++;
-    if(c.head == BUFFER_SIZE){
-        c.head = 0;
+    read = c->content[c->head];
+    c->head++;
+    if(c->head == BUFFER_SIZE){
+        c->head = 0;
     }
 
     printf("circ buf read:%d\n",read);
@@ -47,8 +61,8 @@ int read_circ_buf(circ_buf c){
 /*
  * Return whether circular buffer is empty or not
  */
-int is_circ_empty(circ_buf c){
-    if(c.head == c.tail){
+int is_circ_empty(circ_buf *c){
+    if(c->head == c->tail){
         //printf("Circ buffer is empty\n");
         return 1;
     }
@@ -60,11 +74,11 @@ int is_circ_empty(circ_buf c){
 /*
  * Return whether circular buffer is full or not
  */
-int is_circ_full(circ_buf c){
-    if(c.head == c.tail - 1){
+int is_circ_full(circ_buf *c){
+    if(c->head == c->tail - 1){
         return 1;
     }
-    if(c.head == 0 && c.tail == BUFFER_SIZE){
+    if(c->head == 0 && c->tail == BUFFER_SIZE){
         return 1;
     }
 

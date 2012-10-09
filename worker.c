@@ -25,11 +25,12 @@ void *work(void *args){
 
     printf("IamA Worker %d\n",work_id);
         
+    //For testing
     pthread_mutex_lock(&thread_info.read_mons[d].lock);
-    write_circ_buf(thread_info.read_queues[d], work_id);
+    write_circ_buf(&thread_info.read_queues[d], work_id);
     pthread_mutex_unlock(&thread_info.read_mons[d].lock);
-    return null;
 
+/*
     while(i == o){
         i = F * drand48();
         o = F * drand48();
@@ -60,14 +61,14 @@ void *work(void *args){
         thread_info.read_mons[work_id].buffer_addr = &read_buf;
         thread_info.read_mons[work_id].request_time = clock;
         //printf("Worker:%d, writing to read_queues[%d], value:%d\n",work_id,d,work_id);
-        write_circ_buf(thread_info.read_queues[d], work_id);
+        write_circ_buf(&thread_info.read_queues[d], work_id);
         //get back time from disk
 
         //write that 1 kiB record to output file o
         thread_info.write_mons[work_id].block_number = count;
         thread_info.write_mons[work_id].buffer_addr = &write_buf;
         thread_info.write_mons[work_id].request_time = clock;
-        write_circ_buf(thread_info.write_queues[d], work_id);
+        write_circ_buf(&thread_info.write_queues[d], work_id);
         //increment time
         clock = clock + 1;
         //call writer
@@ -77,5 +78,5 @@ void *work(void *args){
     pthread_mutex_unlock(&thread_info.write_mons[work_id].lock);
     //release read lock on file i
     pthread_mutex_unlock(&thread_info.read_mons[work_id].lock);
-
+*/
 }

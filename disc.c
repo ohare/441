@@ -27,12 +27,12 @@ void *disc_start(void *args){
             //printf("Checking read_queues[%d]\n",disk_id);
         }
         if(!(is_circ_empty(thread_info.read_queues[disk_id]))){    
-            printf("Stuff to read");
+            printf("Stuff to read\n");
             work_id = read_circ_buf(thread_info.read_queues[disk_id]);
             read(thread_info.read_mons[work_id]);
         }
         if(!(is_circ_empty(thread_info.write_queues[disk_id]))){    
-            printf("Stuff to write");
+            printf("Stuff to write\n");
             work_id = read_circ_buf(thread_info.write_queues[disk_id]);
             write(thread_info.write_mons[work_id]);
         }
@@ -47,7 +47,7 @@ int read(rm rmon){
         my_clock = rmon.request_time;
     }
 
-    printf("Read: disk clock is now:%d",my_clock);
+    printf("Read: disk clock is now:%d\n",my_clock);
 
     rmon.receipt_time = my_clock;
 
@@ -71,7 +71,7 @@ int write(wm wmon){
         my_clock = wmon.request_time;
     }
 
-    printf("Write: Disk clock is now:%d",my_clock);
+    printf("Write: Disk clock is now:%d\n",my_clock);
 
     wmon.receipt_time = my_clock;
 

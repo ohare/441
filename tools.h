@@ -38,10 +38,10 @@ typedef struct info_t{
     int W;
 } info;
 
-void write_circ_buf(circ_buf c, int data);
-int read_circ_buf(circ_buf c);
-int is_circ_empty(circ_buf c);
-int is_circ_full(circ_buf c);
+void write_circ_buf(circ_buf *c, int data);
+int read_circ_buf(circ_buf *c);
+int is_circ_empty(circ_buf *c);
+int is_circ_full(circ_buf *c);
 void* emalloc(size_t s);
 int get_id(info i, pthread_t self_id);
 
