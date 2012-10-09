@@ -85,25 +85,17 @@ void *emalloc(size_t s){
 
 int get_id(info i, pthread_t self_id){
     int n = 0;
-    //pthread_t self_id;
-
-    //self_id = pthread_self();
 
     //Check lists of disc and worker thread ids to get the 'number' of the thread
     for(;;){
-        //printf("(get_id) Number of discs:%d\n",i.D);
         for(n = 0; n < i.D; n++){
-            //printf("(get_id) Disk ID's match? %d,%d\n",i.disc_ids[n],self_id);
             if(pthread_equal(i.disc_ids[n],self_id)){
-                //printf("(get_id) Yes! I am disc:%d\n",n);
                 return n;
             }
         }
 
         for(n = 0; n < i.W; n++){
-            //printf("(get_id) Worker ID's match? %d,%d\n",i.disc_ids[n],self_id);
             if(pthread_equal(i.work_ids[n],self_id)){
-                //printf("(get_id) Yes! I am worker:%d\n",n);
                 return n;
             }
         }

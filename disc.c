@@ -22,10 +22,6 @@ void *disc_start(void *args){
     printf("I am disc:%d\n", disc_id);
 
     for(;;){
-        //Debugging?
-        if(disc_id == 0){
-            //printf("Checking read_queues[%d]\n",disc_id);
-        }
         if(!(is_circ_empty(&thread_info.read_queues[disc_id]))){    
             printf("Stuff to read\n");
             work_id = read_circ_buf(&thread_info.read_queues[disc_id]);
@@ -35,6 +31,9 @@ void *disc_start(void *args){
             printf("Stuff to write\n");
             work_id = read_circ_buf(&thread_info.write_queues[disc_id]);
             write(&thread_info.write_mons[work_id]);
+        }
+        if(thread_info.disc_kill[disc_id] == 1){
+            break;
         }
         //printf("Thread:%u, Num:%d\n",pthread_self(),(*(int *) args));
     }

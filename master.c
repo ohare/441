@@ -38,6 +38,9 @@ int main(int argc, char *argv[]){
     thread_info.disc_ids = emalloc(sizeof(int) * D);
     thread_info.work_ids = emalloc(sizeof(int) * W);
 
+    /* Initialise array of disc_kill messages */
+    thread_info.disc_kill = emalloc(sizeof(int) * D);
+
     /* Store number of discs and workers */
     thread_info.D = D;
     //printf("(master) Set number of discs to:%d\n",thread_info.D);
@@ -87,14 +90,17 @@ int main(int argc, char *argv[]){
     }
 
     //waits for worker threads to complete
-    for (i=0; i < W; ++i) {
+    for(i=0; i < W; i++){
        rc = pthread_join(worker_threads[i], NULL);
        printf("Return code of worker thread:%d was:%d\n",i,rc);
     }
- 
+
+    for(i=0; i < D; i++){
+        thread_info.disc_kill[i] = 1;
+    }
 
     //waits for disc threads to complete
-    for (i=0; i < D; ++i) {
+    for(i=0; i < D; i++){
        rc = pthread_join(disc_threads[i], NULL);
        printf("Return code of disc thread:%d was:%d\n",i,rc);
     }
