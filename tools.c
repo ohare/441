@@ -61,7 +61,7 @@ int is_circ_empty(circ_buf *c){
  * Return whether circular buffer is full or not
  */
 int is_circ_full(circ_buf *c){
-    if(c->head == c->tail - 1){
+    if(c->head == c->tail + 1){
         return 1;
     }
     if(c->head == 0 && c->tail == BUFFER_SIZE){

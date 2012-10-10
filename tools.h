@@ -35,8 +35,11 @@ typedef struct info_t{
     circ_buf *write_queues;
     rm *read_mons;
     wm *write_mons;
+    pthread_mutex_t *file_read_lock;
+    pthread_mutex_t *file_write_lock;
     int *disc_kill;
     int *disc_times;
+    int *work_times;
     int D;
     int W;
 } info;

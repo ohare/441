@@ -40,8 +40,9 @@ int main(int argc, char *argv[]){
 
     /* Initialise array of disc_kill messages */
     thread_info.disc_kill = emalloc(sizeof(int) * D);
-    /* Initialise array of disc_times (clocks) */
+    /* Initialise arrays for clocks */
     thread_info.disc_times = emalloc(sizeof(int) * D);
+    thread_info.work_times = emalloc(sizeof(int) * W);
 
     /* Store number of discs and workers */
     thread_info.D = D;
@@ -49,7 +50,6 @@ int main(int argc, char *argv[]){
     thread_info.W = W;
 
     pthread_t disc_threads[D], worker_threads[W];
-    //int disc_thread_args[D], worker_thread_args[W];
     int rc, i;
 
     //Set PTHREAD_MUTEX_ERRORCHECK
@@ -62,11 +62,8 @@ int main(int argc, char *argv[]){
         thread_info.read_queues[i].tail = 0;
         thread_info.write_queues[i].head = 0;
         thread_info.write_queues[i].tail = 0;
-        //disc_thread_args[i] = i;
         thread_info.disc_times[i] = 0;
         printf("Creating disc thread %d\n", i);
-        //rc = pthread_create(&disc_threads[i], NULL, disc_start, (void *) &disc_thread_args[i]);
-        //printf("(master) info addr:%d\n",&thread_info);
         rc = pthread_create(&disc_threads[i], NULL, disc_start, &thread_info);
         if(rc != 0){
             printf("Creation of disc thread:%d failed, code:%d\n",i,rc);
@@ -87,7 +84,6 @@ int main(int argc, char *argv[]){
         }
         //worker_thread_args[i] = i;
         printf("Creating worker thread %d\n", i);
-        //rc = pthread_create(&worker_threads[i], NULL, work, (void *) &worker_thread_args[i]);
         rc = pthread_create(&worker_threads[i], NULL, work, &thread_info);
         if(rc != 0){
             printf("Creation of worker thread:%d failed, code:%d\n",i,rc);
@@ -98,8 +94,9 @@ int main(int argc, char *argv[]){
 
     //waits for worker threads to complete
     for(i=0; i < W; i++){
-       rc = pthread_join(worker_threads[i], NULL);
-       printf("Return code of worker thread:%d was:%d\n",i,rc);
+        rc = pthread_join(worker_threads[i], NULL);
+        //printf("Return code of worker thread:%d was:%d\n",i,rc);
+        printf("Worker:%d finished clock:%d\n",i,thread_info.work_times[i]);
     }
 
     for(i=0; i < D; i++){
