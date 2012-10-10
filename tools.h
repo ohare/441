@@ -36,6 +36,7 @@ typedef struct info_t{
     rm *read_mons;
     wm *write_mons;
     int *disc_kill;
+    int *disc_times;
     int D;
     int W;
 } info;

@@ -40,6 +40,8 @@ int main(int argc, char *argv[]){
 
     /* Initialise array of disc_kill messages */
     thread_info.disc_kill = emalloc(sizeof(int) * D);
+    /* Initialise array of disc_times (clocks) */
+    thread_info.disc_times = emalloc(sizeof(int) * D);
 
     /* Store number of discs and workers */
     thread_info.D = D;
@@ -61,6 +63,7 @@ int main(int argc, char *argv[]){
         thread_info.write_queues[i].head = 0;
         thread_info.write_queues[i].tail = 0;
         //disc_thread_args[i] = i;
+        thread_info.disc_times[i] = 0;
         printf("Creating disc thread %d\n", i);
         //rc = pthread_create(&disc_threads[i], NULL, disc_start, (void *) &disc_thread_args[i]);
         //printf("(master) info addr:%d\n",&thread_info);
