@@ -14,7 +14,7 @@ void *disc_start(void *args){
 
     //printf("(disc_start) info addr:%d\n",&thread_info);
 
-    disc_id = get_id(thread_info, pthread_self());
+    disc_id = get_id(&thread_info, pthread_self());
     if(disc_id < 0){
         fprintf(stderr,"Error fetching disc_id\n");
     }
@@ -23,38 +23,41 @@ void *disc_start(void *args){
 
     for(;;){
         if(!(is_circ_empty(&thread_info.read_queues[disc_id]))){    
-            printf("Stuff to read\n");
+            //printf("Stuff to read\n");
             work_id = read_circ_buf(&thread_info.read_queues[disc_id]);
             read(&thread_info.read_mons[work_id]);
         }
         if(!(is_circ_empty(&thread_info.write_queues[disc_id]))){    
-            printf("Stuff to write\n");
+            //printf("Stuff to write\n");
             work_id = read_circ_buf(&thread_info.write_queues[disc_id]);
             write(&thread_info.write_mons[work_id]);
         }
         if(is_circ_empty(&thread_info.write_queues[disc_id]) &&
             is_circ_empty(&thread_info.read_queues[disc_id]) &&
             thread_info.disc_kill[disc_id] == 1){
+            printf("Disc:%d finished disc clock:%d\n",disc_id,my_clock);
             break;
         }
         //printf("Thread:%u, Num:%d\n",pthread_self(),(*(int *) args));
     }
+
+    return 0;
 }
 
+//'Read' from disc
 int read(rm *rmon){
-    //PTHREAD_MUTEX_ERRORCHECKER
 
     if(rmon->request_time > my_clock){
         my_clock = rmon->request_time;
     }
 
-    printf("Read: disc clock is now:%d\n",my_clock);
+    //printf("Read: disc clock is now:%d\n",my_clock);
 
     rmon->receipt_time = my_clock;
 
     //Pretend to read in memory to buffer
 
-    my_clock = 10 + 12 * drand48();
+    my_clock += 10 + 12 * drand48();
 
     rmon->completion_time = my_clock;
 
@@ -66,19 +69,20 @@ int read(rm *rmon){
     return 0;
 }
 
+//'Write' to buffer
 int write(wm *wmon){
 
     if(wmon->request_time > my_clock){
         my_clock = wmon->request_time;
     }
 
-    printf("Write: Disk clock is now:%d\n",my_clock);
+    //printf("Write: Disk clock is now:%d\n",my_clock);
 
     wmon->receipt_time = my_clock;
 
     //Pretend to write to buffer
 
-    my_clock = 10 + 12 * drand48();
+    my_clock += 10 + 12 * drand48();
 
     wmon->completion_time = my_clock;
 

@@ -20,7 +20,7 @@ void write_circ_buf(circ_buf *c, int data){
     if(c->tail == BUFFER_SIZE){
         c->tail = 0;
     }
-    printf("circ buf wrote:%d, head:%d, tail:%d\n",data,c->head,c->tail);
+    //printf("circ buf wrote:%d, head:%d, tail:%d\n",data,c->head,c->tail);
 }
 
 /*
@@ -39,7 +39,7 @@ int read_circ_buf(circ_buf *c){
         c->head = 0;
     }
 
-    printf("circ buf read:%d, head:%d, tail:%d\n",read,c->head,c->tail);
+    //printf("circ buf read:%d, head:%d, tail:%d\n",read,c->head,c->tail);
 
     return read;
 }
@@ -53,7 +53,7 @@ int is_circ_empty(circ_buf *c){
         return 1;
     }
 
-    printf("Circ buffer is not empty\n");
+    //printf("Circ buffer is not empty\n");
     return 0;
 }
 
@@ -83,19 +83,19 @@ void *emalloc(size_t s){
     return result;
 }
 
-int get_id(info i, pthread_t self_id){
+int get_id(info *i, pthread_t self_id){
     int n = 0;
 
     //Check lists of disc and worker thread ids to get the 'number' of the thread
     for(;;){
-        for(n = 0; n < i.D; n++){
-            if(pthread_equal(i.disc_ids[n],self_id)){
+        for(n = 0; n < i->D; n++){
+            if(pthread_equal(i->disc_ids[n],self_id)){
                 return n;
             }
         }
 
-        for(n = 0; n < i.W; n++){
-            if(pthread_equal(i.work_ids[n],self_id)){
+        for(n = 0; n < i->W; n++){
+            if(pthread_equal(i->work_ids[n],self_id)){
                 return n;
             }
         }

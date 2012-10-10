@@ -19,18 +19,18 @@ void *work(void *args){
     info thread_info = *((info *)(args));
     char read_buf[BUF_SIZE];
     char write_buf[BUF_SIZE];
-    void *null = 0;
 
-    work_id = get_id(thread_info, pthread_self());
+    work_id = get_id(&thread_info, pthread_self());
 
     printf("IamA Worker %d\n",work_id);
         
     //For testing
+    /*
     pthread_mutex_lock(&thread_info.read_mons[d].lock);
     write_circ_buf(&thread_info.read_queues[d], work_id);
     pthread_mutex_unlock(&thread_info.read_mons[d].lock);
+    */
 
-/*
     while(i == o){
         i = F * drand48();
         o = F * drand48();
@@ -71,6 +71,7 @@ void *work(void *args){
         write_circ_buf(&thread_info.write_queues[d], work_id);
         //increment time
         clock = clock + 1;
+        //printf("Reciept time:%d\n",thread_info.write_mons[d].completion_time);
         //call writer
     }
 
@@ -78,5 +79,8 @@ void *work(void *args){
     pthread_mutex_unlock(&thread_info.write_mons[work_id].lock);
     //release read lock on file i
     pthread_mutex_unlock(&thread_info.read_mons[work_id].lock);
-*/
+
+    printf("Worker:%d finished clock:%d\n",work_id,clock);
+
+    return 0;
 }
