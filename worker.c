@@ -60,7 +60,7 @@ void *work(void *args){
 
     for(count = 0; count < blocks_per_file; count++){
         d = 0;
-        printf("Up to %d\n",count);
+        //printf("Up to %d\n",count);
         read_file(&thread_info,i,d,count,work_id, read_buf);
         //write_file(&thread_info,o,d,count,work_id, write_buf);
     }
@@ -76,7 +76,7 @@ void *work(void *args){
 
 void read_file(void* thread_info, int i, int d, int count, int work_id, char* read_buf){
     /* Read a 1 kiB record from input file i */
-    mon temp;
+    //mon temp;
     mon *ret_mon;
     info *ti = (info *)(thread_info);
 
@@ -84,25 +84,28 @@ void read_file(void* thread_info, int i, int d, int count, int work_id, char* re
     pthread_mutex_lock(&ti->read_mons[d]);
 
     /* Create monitor */
+    /*
     temp.block_number = count;
     temp.buffer_addr = read_buf;
     temp.request_time = ti->work_times[work_id];
     temp.work_id = work_id;
     temp.finished = 0;
+    */
 
     /* Write monitor to queue if there is space */
-    pthread_mutex_unlock(&ti->read_mons[d]);
+    //pthread_mutex_unlock(&ti->read_mons[d]);
     for(;;){
-        pthread_mutex_lock(&ti->read_mons[d]);
+        //pthread_mutex_lock(&ti->read_mons[d]);
         if(!is_circ_full(&ti->read_queues[d])){
-            write_circ_buf(&ti->read_queues[d], &temp);
+            //write_circ_buf(&ti->read_queues[d], &temp);
+            write_circ_buf(&ti->read_queues[d], count, read_buf, ti->work_times[work_id], work_id, 0);
             break;
         }
-        pthread_mutex_unlock(&ti->read_mons[d]);
+        //pthread_mutex_unlock(&ti->read_mons[d]);
     }
 
     //printf("Wrote to buf!\n");
-    write_circ_buf(&ti->read_queues[d], &temp);
+    //write_circ_buf(&ti->read_queues[d], &temp);
 
     /* Unlock queue */
     pthread_mutex_unlock(&ti->read_mons[d]);
@@ -132,6 +135,7 @@ void write_file(void* thread_info,int i, int d, int count, int work_id, char* wr
     /* Lock write queue */
     pthread_mutex_lock(&ti.write_mons[d]);
 
+    /*
     mon temp;
 
     temp.block_number = count;
@@ -145,7 +149,7 @@ void write_file(void* thread_info,int i, int d, int count, int work_id, char* wr
 
     write_circ_buf(&ti.write_queues[d], &temp);
     //printf("Reciept time:%d\n",ti.write_mons[d].completion_time);
-
+    */
     /* Unlock queue */
     pthread_mutex_unlock(&ti.write_mons[d]);
 

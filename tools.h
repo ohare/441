@@ -68,7 +68,8 @@ typedef struct info_t{
     circ_buf *write_queues;
 } info;
 
-void write_circ_buf(circ_buf *c, mon *monitor);
+//void write_circ_buf(circ_buf *c, mon *monitor);
+void write_circ_buf(circ_buf *c, int count, char* write_buf, int req_time, int work_id, int finished);
 mon *read_circ_buf(circ_buf *c);
 int is_circ_empty(circ_buf *c);
 int is_circ_full(circ_buf *c);

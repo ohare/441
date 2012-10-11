@@ -7,9 +7,18 @@
  * Writes to the circular buffer
  * If the buffer is full the first number will be overwritten
  */
-void write_circ_buf(circ_buf *c, mon *monitor){
+//void write_circ_buf(circ_buf *c, mon *monitor){
+void write_circ_buf(circ_buf *c, int count, char* write_buf, int req_time, int work_id, int finished){
+
     /* Set monitor pointer */
-    c->content[c->tail] = monitor;
+    //c->content[c->tail] = monitor;
+    free(c->content[c->tail]);
+    c->content[c->tail] = emalloc(sizeof(mon));
+    c->content[c->tail]->block_number = count;
+    c->content[c->tail]->buffer_addr = write_buf;
+    c->content[c->tail]->request_time = req_time;
+    c->content[c->tail]->work_id = work_id;
+    c->content[c->tail]->finished = finished;
 
     c->tail++;
     if(c->tail == c->head){
