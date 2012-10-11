@@ -37,7 +37,7 @@ void *work(void *args){
     write_circ_buf(&thread_info.read_queues[d], work_id);
     pthread_mutex_unlock(&thread_info.read_mons[d].lock);
     */
-
+    
     while(i == o){
         i = F * drand48();
         o = F * drand48();
@@ -80,11 +80,16 @@ void read_file(void* thread_info, int i, int work_id){
     //mon temp;
     //mon *ret_mon;
     info *ti = (info *)(thread_info);
-    int count = 0;
     char* read_buffers[BUF_SIZE];
     int d = 0;
+    long x;
+    int block_num;
+    int block_on_disc;
 
-    for(count = 0; count < BLOCKS_PER_FILE; count++){
+    for(block_num = 0; block_num < BLOCKS_PER_FILE; block_num++){
+        x = (long) i * BLOCKS_PER_FILE + block_num;
+        d = x % ti->D;
+        block_on_disc = x / ti->D;
         /* Lock read queue */
         pthread_mutex_lock(&ti->read_mons[d]);
 
@@ -103,7 +108,7 @@ void read_file(void* thread_info, int i, int work_id){
             //pthread_mutex_lock(&ti->read_mons[d]);
             if(!is_circ_full(&ti->read_queues[d])){
                 //write_circ_buf(&ti->read_queues[d], &temp);
-                write_circ_buf(&ti->read_queues[d], count, *read_buffers, ti->work_times[work_id], work_id, 0);
+                write_circ_buf(&ti->read_queues[d], block_on_disc, *read_buffers, ti->work_times[work_id], work_id, 0);
                 break;
             }
             //pthread_mutex_unlock(&ti->read_mons[d]);
