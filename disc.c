@@ -5,6 +5,7 @@
 #include "tools.h"
 
 void *disc_start(void *args){
+    mon temp;
     int work_id = 0;
     //int disc_id = (*(int *) args);
     int disc_id = 0;
@@ -22,20 +23,21 @@ void *disc_start(void *args){
     for(;;){
         if(!(is_circ_empty(&thread_info.read_queues[disc_id]))){    
             //printf("Stuff to read\n");
-            pthread_mutex_lock(&thread_info.read_mons[disc_id].lock);
-            work_id = read_circ_buf(&thread_info.read_queues[disc_id]);
+            //pthread_mutex_lock(&thread_info.read_queues[disc_id].lock);
+            temp = read_circ_buf(&thread_info.read_queues[disc_id]);
 
-            read(&thread_info.read_mons[work_id], &thread_info,disc_id);
-            pthread_mutex_unlock(&thread_info.read_mons[disc_id].lock);
+            read(temp, &thread_info,disc_id);
+            //pthread_mutex_unlock(&thread_info.read_mons[disc_id].lock);
         }
+        /*
         if(!(is_circ_empty(&thread_info.write_queues[disc_id]))){    
             //printf("Stuff to write\n");
-            work_id = read_circ_buf(&thread_info.write_queues[disc_id]);
+            temp = read_circ_buf(&thread_info.write_queues[disc_id]);
             //Lock mutex, write, release
-            pthread_mutex_lock(&thread_info.write_mons[disc_id].lock);
+            pthread_mutex_lock(temp->lock);
             write(&thread_info.write_mons[work_id], &thread_info,disc_id);
             pthread_mutex_unlock(&thread_info.write_mons[disc_id].lock);
-        }
+        }*/
         if(is_circ_empty(&thread_info.write_queues[disc_id]) &&
             is_circ_empty(&thread_info.read_queues[disc_id]) &&
             thread_info.disc_kill[disc_id] == 1){
@@ -49,7 +51,7 @@ void *disc_start(void *args){
 }
 
 //'Read' from disc
-int read(rm *rmon, info *i, int disc_id){
+int read(mon *rmon, info *i, int disc_id){
 
     if(rmon->request_time > i->disc_times[disc_id]){
         i->disc_times[disc_id] = rmon->request_time;

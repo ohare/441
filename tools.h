@@ -3,12 +3,14 @@
 
 #define BUFFER_SIZE 256                    /* Size of the circular buffer */
 
-//Used as queue for disc requests
-typedef struct circular_buffer{
-    int content[BUFFER_SIZE];
-    int head;
-    int tail;
-} circ_buf;
+typedef struct monitor{
+    pthread_mutex_t lock;
+    int block_number;
+    void* buffer_addr;
+    int request_time;
+    int receipt_time;
+    int completion_time;
+} mon;
 
 typedef struct read_monitor{
     pthread_mutex_t lock;
@@ -28,6 +30,14 @@ typedef struct write_monitor{
     int completion_time;
 } wm;
 
+//Used as queue for disc requests
+typedef struct circular_buffer{
+    mon content[BUFFER_SIZE];
+    int head;
+    int tail;
+    pthread_mutex_t lock;
+} circ_buf;
+
 typedef struct info_t{
     pthread_t *disc_ids;
     pthread_t *work_ids;
@@ -44,8 +54,8 @@ typedef struct info_t{
     int W;
 } info;
 
-void write_circ_buf(circ_buf *c, int data);
-int read_circ_buf(circ_buf *c);
+void write_circ_buf(circ_buf *c, int block_number, void* buffer_addr, int request_time);
+mon read_circ_buf(circ_buf *c);
 int is_circ_empty(circ_buf *c);
 int is_circ_full(circ_buf *c);
 void* emalloc(size_t s);
