@@ -9,6 +9,7 @@ void *disc_start(void *args){
     int work_id = 0;
     //int disc_id = (*(int *) args);
     int disc_id = 0;
+    //info thread_info = *((info *)(args));
     info thread_info = *((info *)(args));
 
     //printf("(disc_start) info addr:%d\n",&thread_info);
@@ -70,22 +71,30 @@ int read(mon *rmon, info *i, int disc_id){
 
     /* Update the disc time */
     i->disc_times[disc_id] += 10 + 12 * drand48();
+    //printf("Read: disc clock is now:%d\n",i->disc_times[disc_id]);
 
     /* Set the completion time */
     rmon->completion_time = i->disc_times[disc_id];
     temp.completion_time = i->disc_times[disc_id];
+    temp.finished = 1;
 
     //do anything else it needs to let requestor know to proceed
     /* Lock read response queue */
-    pthread_mutex_lock(&(i->read_resp_lock[disc_id]));
+    //pthread_mutex_lock(&(i->read_resp_lock[work_id]));
 
     /* Set response flag monitor */
     //write_circ_buf(&ti.read_queues[d], &temp);
     //write_circ_buf(&i.read_response[work_id], &temp);
-    i->read_response->finished = 1;
+    //printf("Pre fault\n");
+    //printf("D Work id%d\n",work_id);
+    i->read_response[work_id].finished = 1;
+    //printf("Finsished? %d\n",i->read_response[work_id].finished);
+    i->read_response[work_id] = temp;
+    //printf("Wrote to mon!\n");
+    //printf("D Finsished? %d\n",i->read_response[work_id].finished);
 
     /* Unlock write response queue */
-    pthread_mutex_unlock(&(i->read_resp_lock[disc_id]));
+    //pthread_mutex_unlock(&(i->read_resp_lock[work_id]));
 
     return 0;
 }

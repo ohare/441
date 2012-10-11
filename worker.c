@@ -16,6 +16,7 @@ void *work(void *args){
     int blocks_per_file = 250000;
     //int work_id = *((int *) L);
     int work_id = 0;
+    //info thread_info = *((info *)(args));
     info thread_info = *((info *)(args));
     char read_buf[BUF_SIZE];
     char write_buf[BUF_SIZE];
@@ -76,39 +77,50 @@ void read_file(void* thread_info, int i, int d, int count, int work_id, char* re
     /* Read a 1 kiB record from input file i */
     mon temp;
     mon *ret_mon;
-    info ti = *((info *)(thread_info));
+    info *ti = (info *)(thread_info);
 
     /* Lock read queue */
-    pthread_mutex_lock(&ti.read_mons[d]);
+    pthread_mutex_lock(&ti->read_mons[d]);
 
     /* Create monitor */
     temp.block_number = count;
     temp.buffer_addr = read_buf;
-    temp.request_time = ti.work_times[work_id];
+    temp.request_time = ti->work_times[work_id];
+    temp.work_id = work_id;
+    temp.finished = 0;
 
     /* Write monitor to queue if there is space */
-    pthread_mutex_unlock(&ti.read_mons[d]);
+    pthread_mutex_unlock(&ti->read_mons[d]);
     for(;;){
-        pthread_mutex_lock(&ti.read_mons[d]);
-        if(!is_circ_full(&ti.read_queues[d])){
-            write_circ_buf(&ti.read_queues[d], &temp);
+        pthread_mutex_lock(&ti->read_mons[d]);
+        if(!is_circ_full(&ti->read_queues[d])){
+            write_circ_buf(&ti->read_queues[d], &temp);
             break;
         }
-        pthread_mutex_unlock(&ti.read_mons[d]);
+        pthread_mutex_unlock(&ti->read_mons[d]);
     }
 
-    write_circ_buf(&ti.read_queues[d], &temp);
+    //printf("Wrote to buf!\n");
+    write_circ_buf(&ti->read_queues[d], &temp);
 
     /* Unlock queue */
-    pthread_mutex_unlock(&ti.read_mons[d]);
+    pthread_mutex_unlock(&ti->read_mons[d]);
 
+    //printf("W Work id %d\n",work_id);
     /* Get back completion time from disc */
     for(;;){
-        if((ti.read_response[work_id]).finished == 1){
-            ti.work_times[work_id] = ti.read_response[work_id].completion_time;
+        //printf("Waiting for response\n");
+        //printf("Fin?? %d\n",ti->read_response[work_id].finished);
+        if(ti->read_response[work_id].finished == 1){
+            //printf("Worker finished!\n");
+            ti->work_times[work_id] = ti->read_response[work_id].completion_time;
+            //printf("Time now%d\n", ti->work_times[work_id]);
+            ti->read_response[work_id].finished = 0;
+            break;
         }
     }
 
+    //printf("One\n");
     //printf("Comp time:%d\n",ti.read_mons[d].completion_time);
     //ti.work_times[work_id] = ti.read_mons[d].completion_time;
 }
@@ -124,6 +136,8 @@ void write_file(void* thread_info,int i, int d, int count, int work_id, char* wr
     temp.block_number = count;
     temp.buffer_addr = write_buf;
     temp.request_time = ti.work_times[work_id];
+    temp.work_id = work_id;
+    temp.finished = 0;
 
     //increment time by 1 before write
     ti.work_times[work_id] = ti.work_times[work_id] + 1;

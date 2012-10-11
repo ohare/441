@@ -6,12 +6,12 @@
 typedef struct monitor{
     pthread_mutex_t lock;
     int block_number;
-    void* buffer_addr;
     int request_time;
     int receipt_time;
     int completion_time;
     int work_id;
     int finished;
+    void* buffer_addr;
 } mon;
 
 typedef struct read_monitor{
@@ -34,17 +34,24 @@ typedef struct write_monitor{
 
 //Used as queue for disc requests
 typedef struct circular_buffer{
-    mon *content[BUFFER_SIZE];
     int head;
     int tail;
     pthread_mutex_t lock;
+    mon *content[BUFFER_SIZE];
 } circ_buf;
 
+typedef struct worker_t{
+    mon read_resp;
+    mon write_resp;
+    int time;
+} worker;
+
 typedef struct info_t{
+    int D;
+    int W;
+    int L;
     pthread_t *disc_ids;
     pthread_t *work_ids;
-    circ_buf *read_queues;
-    circ_buf *write_queues;
     mon *read_response;
     mon *write_response;
     pthread_mutex_t *read_mons;
@@ -56,9 +63,9 @@ typedef struct info_t{
     int *disc_kill;
     int *disc_times;
     int *work_times;
-    int D;
-    int W;
-    int L;
+    worker *workers;
+    circ_buf *read_queues;
+    circ_buf *write_queues;
 } info;
 
 void write_circ_buf(circ_buf *c, mon *monitor);
