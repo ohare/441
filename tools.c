@@ -7,12 +7,14 @@
  * Writes to the circular buffer
  * If the buffer is full the first number will be overwritten
  */
-void write_circ_buf(circ_buf *c, int block_number, void* buffer_addr, int request_time){
-
+void write_circ_buf(circ_buf *c, mon *monitor){
+    /*
     //Set monitor data
     c->content[c->tail].block_number = block_number;
     c->content[c->tail].buffer_addr = buffer_addr;
     c->content[c->tail].request_time = request_time;
+    */
+    c->content[c->tail] = monitor;
 
     c->tail++;
     if(c->tail == c->head){
@@ -30,8 +32,8 @@ void write_circ_buf(circ_buf *c, int block_number, void* buffer_addr, int reques
 /*
  * Reads from the circular buffer
  */
-mon read_circ_buf(circ_buf *c){
-    mon read;
+mon *read_circ_buf(circ_buf *c){
+    mon *read;
 
     /*
     if(c->head == c->tail){

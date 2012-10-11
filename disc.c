@@ -5,7 +5,7 @@
 #include "tools.h"
 
 void *disc_start(void *args){
-    mon temp;
+    mon *temp;
     int work_id = 0;
     //int disc_id = (*(int *) args);
     int disc_id = 0;

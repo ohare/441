@@ -78,14 +78,12 @@ void read_file(void* thread_info, int i, int d, int count, int work_id, char* re
 
     pthread_mutex_lock(&ti.read_mons[d].lock);
     //read a 1 kiB record from input file i
-    /*
-    temp = emalloc(sizeof(mon));
     temp.block_number = count;
-    temp.buffer_addr = &read_buf;
+    temp.buffer_addr = read_buf;
     temp.request_time = ti.work_times[work_id];
-    */
     //printf("Worker:%d, writing to read_queues[%d], value:%d\n",work_id,d,work_id);
-    write_circ_buf(&ti.read_queues[d], count, read_buf, ti.work_times[work_id]);
+    //write_circ_buf(&ti.read_queues[d], count, read_buf, ti.work_times[work_id]);
+    write_circ_buf(&ti.read_queues[d], &temp);
     pthread_mutex_unlock(&ti.read_mons[d].lock);
     //get back completion time from disc
     //printf("Comp time:%d\n",ti.read_mons[d].completion_time);

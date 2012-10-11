@@ -32,7 +32,7 @@ typedef struct write_monitor{
 
 //Used as queue for disc requests
 typedef struct circular_buffer{
-    mon content[BUFFER_SIZE];
+    mon *content[BUFFER_SIZE];
     int head;
     int tail;
     pthread_mutex_t lock;
@@ -54,8 +54,8 @@ typedef struct info_t{
     int W;
 } info;
 
-void write_circ_buf(circ_buf *c, int block_number, void* buffer_addr, int request_time);
-mon read_circ_buf(circ_buf *c);
+void write_circ_buf(circ_buf *c, mon *monitor);
+mon *read_circ_buf(circ_buf *c);
 int is_circ_empty(circ_buf *c);
 int is_circ_full(circ_buf *c);
 void* emalloc(size_t s);
