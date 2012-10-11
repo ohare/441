@@ -13,7 +13,7 @@ void *work(void *args){
     int d = 0;
     int F = 1000;
     int count = 0;
-    int blocks_per_file = 250000;
+    int blocks_per_file = 250;
     //int work_id = *((int *) L);
     int work_id = 0;
     //info thread_info = *((info *)(args));
@@ -60,6 +60,7 @@ void *work(void *args){
 
     for(count = 0; count < blocks_per_file; count++){
         d = 0;
+        printf("Up to %d\n",count);
         read_file(&thread_info,i,d,count,work_id, read_buf);
         //write_file(&thread_info,o,d,count,work_id, write_buf);
     }
