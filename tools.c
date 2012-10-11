@@ -21,7 +21,7 @@ void write_circ_buf(circ_buf *c, mon *monitor){
     if(c->tail == BUFFER_SIZE){
         c->tail = 0;
     }
-    //printf("circ buf wrote:%d, head:%d, tail:%d\n",data,c->head,c->tail);
+    //printf("circ buf wrote, head:%d, tail:%d\n",c->head,c->tail);
 }
 
 /*
@@ -29,6 +29,7 @@ void write_circ_buf(circ_buf *c, mon *monitor){
  */
 mon *read_circ_buf(circ_buf *c){
     mon *read;
+    mon temp;
 
     read = c->content[c->head];
     c->head++;
@@ -36,7 +37,7 @@ mon *read_circ_buf(circ_buf *c){
         c->head = 0;
     }
 
-    //printf("circ buf read:%d, head:%d, tail:%d\n",read,c->head,c->tail);
+    //printf("circ buf read, head:%d, tail:%d\n",c->head,c->tail);
 
     return read;
 }

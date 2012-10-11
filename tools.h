@@ -11,6 +11,7 @@ typedef struct monitor{
     int receipt_time;
     int completion_time;
     int work_id;
+    int finished;
 } mon;
 
 typedef struct read_monitor{
@@ -44,8 +45,8 @@ typedef struct info_t{
     pthread_t *work_ids;
     circ_buf *read_queues;
     circ_buf *write_queues;
-    circ_buf *read_response;
-    circ_buf *write_response;
+    mon *read_response;
+    mon *write_response;
     pthread_mutex_t *read_mons;
     pthread_mutex_t *write_mons;
     pthread_mutex_t *read_resp_lock;

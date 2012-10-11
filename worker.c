@@ -60,7 +60,7 @@ void *work(void *args){
     for(count = 0; count < blocks_per_file; count++){
         d = 0;
         read_file(&thread_info,i,d,count,work_id, read_buf);
-        write_file(&thread_info,o,d,count,work_id, write_buf);
+        //write_file(&thread_info,o,d,count,work_id, write_buf);
     }
 
 /*
@@ -75,6 +75,7 @@ void *work(void *args){
 void read_file(void* thread_info, int i, int d, int count, int work_id, char* read_buf){
     /* Read a 1 kiB record from input file i */
     mon temp;
+    mon *ret_mon;
     info ti = *((info *)(thread_info));
 
     /* Lock read queue */
@@ -85,21 +86,28 @@ void read_file(void* thread_info, int i, int d, int count, int work_id, char* re
     temp.buffer_addr = read_buf;
     temp.request_time = ti.work_times[work_id];
 
-    /* Write monitor to queue */
+    /* Write monitor to queue if there is space */
+    pthread_mutex_unlock(&ti.read_mons[d]);
+    for(;;){
+        pthread_mutex_lock(&ti.read_mons[d]);
+        if(!is_circ_full(&ti.read_queues[d])){
+            write_circ_buf(&ti.read_queues[d], &temp);
+            break;
+        }
+        pthread_mutex_unlock(&ti.read_mons[d]);
+    }
+
     write_circ_buf(&ti.read_queues[d], &temp);
 
     /* Unlock queue */
     pthread_mutex_unlock(&ti.read_mons[d]);
 
     /* Get back completion time from disc */
-    /*
     for(;;){
-        while(!(is_circ_empty(&thread_info.read_response[work_id]))){
-            temp = read_circ_buf(&thread_info.read_queues[disc_id]);
-            ti.work_times[work_id] = 
+        if((ti.read_response[work_id]).finished == 1){
+            ti.work_times[work_id] = ti.read_response[work_id].completion_time;
         }
-    }*/
-    
+    }
 
     //printf("Comp time:%d\n",ti.read_mons[d].completion_time);
     //ti.work_times[work_id] = ti.read_mons[d].completion_time;

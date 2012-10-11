@@ -37,9 +37,9 @@ int main(int argc, char *argv[]){
     /* Initialise array of read/write queues for disc */
     thread_info.read_queues = emalloc(sizeof(circ_buf) * D);
     thread_info.write_queues = emalloc(sizeof(circ_buf) * D);
-    /* Initialise array of read/write response queues for workers */
-    thread_info.read_response = emalloc(sizeof(circ_buf) * W);
-    thread_info.write_response = emalloc(sizeof(circ_buf) * W);
+    /* Initialise array of read/write response monitors for workers */
+    thread_info.read_response = emalloc(sizeof(mon) * W);
+    thread_info.write_response = emalloc(sizeof(mon) * W);
 
     /* Initialise array of ids */
     thread_info.disc_ids = emalloc(sizeof(int) * D);
@@ -95,10 +95,6 @@ int main(int argc, char *argv[]){
         if (pthread_mutex_init(&(thread_info.write_resp_lock[i]), &mutex_attr) != 0){
             printf("\nMaster: %d, worker write response mutex init failed\n",i);
         }
-        thread_info.read_response[i].head = 0;
-        thread_info.read_response[i].tail = 0;
-        thread_info.write_response[i].head = 0;
-        thread_info.write_response[i].tail = 0;
         printf("Creating worker thread %d\n", i);
         rc = pthread_create(&worker_threads[i], NULL, work, &thread_info);
         if(rc != 0){
