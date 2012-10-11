@@ -20,19 +20,26 @@ int main(int argc, char *argv[]){
     int const L = atoi(argv[3]);
 
     /* Debugging */
+    /*
     printf("D:%d",D);
     printf("\nW:%d",W);
     printf("\nL:%d\n",L);
+    */
 
     info thread_info;
 
-    /* Initialises W reader-writer locks */
-    thread_info.read_mons = emalloc(sizeof(rm) * W);
-    thread_info.write_mons = emalloc(sizeof(wm) * W);
+    /*Initialise mutexs */
+    thread_info.read_mons = emalloc(sizeof(pthread_mutex_t) * D);
+    thread_info.write_mons = emalloc(sizeof(pthread_mutex_t) * D);
+    thread_info.read_resp_lock = emalloc(sizeof(pthread_mutex_t) * W);
+    thread_info.write_resp_lock = emalloc(sizeof(pthread_mutex_t) * W);
 
     /* Initialise array of read/write queues for disc */
     thread_info.read_queues = emalloc(sizeof(circ_buf) * D);
     thread_info.write_queues = emalloc(sizeof(circ_buf) * D);
+    /* Initialise array of read/write response queues for workers */
+    thread_info.read_response = emalloc(sizeof(circ_buf) * W);
+    thread_info.write_response = emalloc(sizeof(circ_buf) * W);
 
     /* Initialise array of ids */
     thread_info.disc_ids = emalloc(sizeof(int) * D);
@@ -44,10 +51,10 @@ int main(int argc, char *argv[]){
     thread_info.disc_times = emalloc(sizeof(int) * D);
     thread_info.work_times = emalloc(sizeof(int) * W);
 
-    /* Store number of discs and workers */
+    /* Store number of discs, workers and iterations */
     thread_info.D = D;
-    //printf("(master) Set number of discs to:%d\n",thread_info.D);
     thread_info.W = W;
+    thread_info.L = L;
 
     pthread_t disc_threads[D], worker_threads[W];
     int rc, i;
@@ -58,6 +65,13 @@ int main(int argc, char *argv[]){
 
     //starts D disc threads
     for (i=0; i < D; ++i) {
+        /* Initialise read-write locks */
+        if (pthread_mutex_init(&(thread_info.read_mons[i]), &mutex_attr) != 0){
+            printf("\nMaster: %d, disc read mutex init failed\n",i);
+        }
+        if (pthread_mutex_init(&(thread_info.write_mons[i]), &mutex_attr) != 0){
+            printf("\nMaster: %d, disc write mutex init failed\n",i);
+        }
         thread_info.read_queues[i].head = 0;
         thread_info.read_queues[i].tail = 0;
         thread_info.write_queues[i].head = 0;
@@ -75,14 +89,16 @@ int main(int argc, char *argv[]){
 
     //starts W worker threads
     for (i=0; i < W; ++i) {
-        /* Initialise read-write locks */
-        if (pthread_mutex_init(&thread_info.read_mons[i].lock, &mutex_attr) != 0){
-            printf("\nWorker: %d, read mutex init failed\n",i);
+        if (pthread_mutex_init(&(thread_info.read_resp_lock[i]), &mutex_attr) != 0){
+            printf("\nMaster: %d, worker read response mutex init failed\n",i);
         }
-        if (pthread_mutex_init(&thread_info.write_mons[i].lock, &mutex_attr) != 0){
-            printf("\nWorker: %d, write mutex init failed\n",i);
+        if (pthread_mutex_init(&(thread_info.write_resp_lock[i]), &mutex_attr) != 0){
+            printf("\nMaster: %d, worker write response mutex init failed\n",i);
         }
-        //worker_thread_args[i] = i;
+        thread_info.read_response[i].head = 0;
+        thread_info.read_response[i].tail = 0;
+        thread_info.write_response[i].head = 0;
+        thread_info.write_response[i].tail = 0;
         printf("Creating worker thread %d\n", i);
         rc = pthread_create(&worker_threads[i], NULL, work, &thread_info);
         if(rc != 0){

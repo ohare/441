@@ -24,6 +24,7 @@ void *disc_start(void *args){
         if(!(is_circ_empty(&thread_info.read_queues[disc_id]))){    
             //printf("Stuff to read\n");
             //pthread_mutex_lock(&thread_info.read_queues[disc_id].lock);
+            /* Should this be being locked? */
             temp = read_circ_buf(&thread_info.read_queues[disc_id]);
 
             read(temp, &thread_info,disc_id);
@@ -52,6 +53,8 @@ void *disc_start(void *args){
 
 //'Read' from disc
 int read(mon *rmon, info *i, int disc_id){
+    mon temp;
+    int work_id = rmon->work_id;
 
     if(rmon->request_time > i->disc_times[disc_id]){
         i->disc_times[disc_id] = rmon->request_time;
@@ -59,18 +62,28 @@ int read(mon *rmon, info *i, int disc_id){
 
     //printf("Read: disc clock is now:%d\n",my_clock);
 
+    /* Set the receipt time */
     rmon->receipt_time = i->disc_times[disc_id];
+    temp.receipt_time = i->disc_times[disc_id];
 
     //Pretend to read in memory to buffer
 
+    /* Update the disc time */
     i->disc_times[disc_id] += 10 + 12 * drand48();
 
+    /* Set the completion time */
     rmon->completion_time = i->disc_times[disc_id];
-
-    //update monitor with receipt time and completion time
-    rmon->completion_time = i->disc_times[disc_id];
+    temp.completion_time = i->disc_times[disc_id];
 
     //do anything else it needs to let requestor know to proceed
+    /* Lock read response queue */
+    pthread_mutex_lock(&(i->read_resp_lock[disc_id]));
+
+    /* Write monitor to the response queue */
+    write_circ_buf(&(i->read_response[work_id]), &temp);
+
+    /* Unlock write response queue */
+    pthread_mutex_unlock(&(i->read_resp_lock[disc_id]));
 
     return 0;
 }

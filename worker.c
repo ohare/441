@@ -60,7 +60,7 @@ void *work(void *args){
     for(count = 0; count < blocks_per_file; count++){
         d = 0;
         read_file(&thread_info,i,d,count,work_id, read_buf);
-        //write_file(&thread_info,o,d,count,work_id, write_buf);
+        write_file(&thread_info,o,d,count,work_id, write_buf);
     }
 
 /*
@@ -73,36 +73,58 @@ void *work(void *args){
 }
 
 void read_file(void* thread_info, int i, int d, int count, int work_id, char* read_buf){
+    /* Read a 1 kiB record from input file i */
     mon temp;
     info ti = *((info *)(thread_info));
 
-    pthread_mutex_lock(&ti.read_mons[d].lock);
-    //read a 1 kiB record from input file i
+    /* Lock read queue */
+    pthread_mutex_lock(&ti.read_mons[d]);
+
+    /* Create monitor */
     temp.block_number = count;
     temp.buffer_addr = read_buf;
     temp.request_time = ti.work_times[work_id];
-    //printf("Worker:%d, writing to read_queues[%d], value:%d\n",work_id,d,work_id);
-    //write_circ_buf(&ti.read_queues[d], count, read_buf, ti.work_times[work_id]);
+
+    /* Write monitor to queue */
     write_circ_buf(&ti.read_queues[d], &temp);
-    pthread_mutex_unlock(&ti.read_mons[d].lock);
-    //get back completion time from disc
+
+    /* Unlock queue */
+    pthread_mutex_unlock(&ti.read_mons[d]);
+
+    /* Get back completion time from disc */
+    /*
+    for(;;){
+        while(!(is_circ_empty(&thread_info.read_response[work_id]))){
+            temp = read_circ_buf(&thread_info.read_queues[disc_id]);
+            ti.work_times[work_id] = 
+        }
+    }*/
+    
+
     //printf("Comp time:%d\n",ti.read_mons[d].completion_time);
     //ti.work_times[work_id] = ti.read_mons[d].completion_time;
 }
 
 void write_file(void* thread_info,int i, int d, int count, int work_id, char* write_buf){
-    /*
-    mon *temp;
-    info ti = *((info *)(thread_info));
     //write that 1 kiB record to output file o
-    ti.write_mons[work_id].block_number = count;
-    ti.write_mons[work_id].buffer_addr = &write_buf;
-    ti.write_mons[work_id].request_time = ti.work_times[work_id];
-    write_circ_buf(&ti.write_queues[d], work_id);
+    info ti = *((info *)(thread_info));
+    /* Lock write queue */
+    pthread_mutex_lock(&ti.write_mons[d]);
+
+    mon temp;
+
+    temp.block_number = count;
+    temp.buffer_addr = write_buf;
+    temp.request_time = ti.work_times[work_id];
+
     //increment time by 1 before write
     ti.work_times[work_id] = ti.work_times[work_id] + 1;
+
+    write_circ_buf(&ti.write_queues[d], &temp);
     //printf("Reciept time:%d\n",ti.write_mons[d].completion_time);
 
+    /* Unlock queue */
+    pthread_mutex_unlock(&ti.write_mons[d]);
+
     //call writer
-    */
 }

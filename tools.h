@@ -10,6 +10,7 @@ typedef struct monitor{
     int request_time;
     int receipt_time;
     int completion_time;
+    int work_id;
 } mon;
 
 typedef struct read_monitor{
@@ -43,8 +44,12 @@ typedef struct info_t{
     pthread_t *work_ids;
     circ_buf *read_queues;
     circ_buf *write_queues;
-    rm *read_mons;
-    wm *write_mons;
+    circ_buf *read_response;
+    circ_buf *write_response;
+    pthread_mutex_t *read_mons;
+    pthread_mutex_t *write_mons;
+    pthread_mutex_t *read_resp_lock;
+    pthread_mutex_t *write_resp_lock;
     pthread_mutex_t *file_read_lock;
     pthread_mutex_t *file_write_lock;
     int *disc_kill;
@@ -52,6 +57,7 @@ typedef struct info_t{
     int *work_times;
     int D;
     int W;
+    int L;
 } info;
 
 void write_circ_buf(circ_buf *c, mon *monitor);

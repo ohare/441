@@ -8,12 +8,7 @@
  * If the buffer is full the first number will be overwritten
  */
 void write_circ_buf(circ_buf *c, mon *monitor){
-    /*
-    //Set monitor data
-    c->content[c->tail].block_number = block_number;
-    c->content[c->tail].buffer_addr = buffer_addr;
-    c->content[c->tail].request_time = request_time;
-    */
+    /* Set monitor pointer */
     c->content[c->tail] = monitor;
 
     c->tail++;
@@ -30,15 +25,10 @@ void write_circ_buf(circ_buf *c, mon *monitor){
 }
 
 /*
- * Reads from the circular buffer
+ * Reads from the circular buffer (don't call this if emtpy)
  */
 mon *read_circ_buf(circ_buf *c){
     mon *read;
-
-    /*
-    if(c->head == c->tail){
-        //return '\0';
-    }*/
 
     read = c->content[c->head];
     c->head++;
