@@ -94,6 +94,8 @@ int read(mon *rmon, info *i, int disc_id){
     //printf("Wrote to mon!\n");
     //printf("D Finsished? %d\n",i->read_response[work_id].finished);
 
+    pthread_cond_signal(&(i->read_resp_fin[work_id]));
+
     /* Unlock write response queue */
     pthread_mutex_unlock(&(i->read_resp_lock[work_id]));
 

@@ -130,13 +130,14 @@ void read_file(void* thread_info, int i, int work_id){
             //printf("Waiting for response\n");
             //printf("Fin?? %d\n",ti->read_response[work_id].finished);
             pthread_mutex_lock(&ti->read_resp_lock[work_id]);
-            if(ti->read_response[work_id].finished == 1){
+            pthread_cond_wait(&ti->read_resp_fin[work_id],&ti->read_resp_lock[work_id]);
+            //if(ti->read_response[work_id].finished == 1){
                 //printf("Worker finished!\n");
-                ti->work_times[work_id] = ti->read_response[work_id].completion_time;
+            ti->work_times[work_id] = ti->read_response[work_id].completion_time;
                 //printf("Time now%d\n", ti->work_times[work_id]);
-                ti->read_response[work_id].finished = 0;
-                break;
-            }
+            ti->read_response[work_id].finished = 0;
+            break;
+            //}
             pthread_mutex_unlock(&ti->read_resp_lock[work_id]);
         }
         end = clock();
