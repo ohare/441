@@ -19,13 +19,8 @@ void *work(void *args){
     //int d = 0;
     int F = 1000;
     int count = 0;
-    //int blocks_per_file = 250;
-    //int work_id = *((int *) L);
     int work_id = 0;
-    //info thread_info = *((info *)(args));
     info thread_info = *((info *)(args));
-    //char read_buf[BUF_SIZE];
-    //char write_buf[BUF_SIZE];
     //Worker w starts w seconds after origin
     thread_info.work_times[work_id] = work_id;
 
@@ -43,35 +38,17 @@ void *work(void *args){
         printf("Input file:%d\n",i);
         printf("Output file:%d\n",o);
 
-    /* TODO implement file locks? Don't really need this?
-        if(i < o){
-            //obtain a read lock on file i
-            pthread_mutex_lock(&thread_info.read_mons[work_id].lock);
-            //obtain a write lock on file o
-            pthread_mutex_lock(&thread_info.write_mons[work_id].lock);
-        } else {
-            //obtain a write lock on file o
-            pthread_mutex_lock(&thread_info.write_mons[work_id].lock);
-            //obtain a read lock on file i
-            pthread_mutex_lock(&thread_info.read_mons[work_id].lock);
-        }
-    */
         //read from block 0 of file i
         read_file(&thread_info,i,work_id);
         //write at block 0 of file o
         write_file(&thread_info,o,work_id);
-
-    /*
-        //release write lock on file o
-        pthread_mutex_unlock(&thread_info.write_mons[work_id].lock);
-        //release read lock on file i
-        pthread_mutex_unlock(&thread_info.read_mons[work_id].lock);
-    */
     }
 
     return 0;
 }
 
+/* Send a monitor with the appropriate info to the read queue
+    for the disc to see */
 void read_file(void* thread_info, int i, int work_id){
     /* Read a 1 kiB record from input file i */
     info *ti = (info *)(thread_info);
@@ -107,18 +84,16 @@ void read_file(void* thread_info, int i, int work_id){
         for(;;){
             pthread_mutex_lock(&ti->read_resp_lock[work_id]);
             pthread_cond_wait(&ti->read_resp_fin[work_id],&ti->read_resp_lock[work_id]);
-            //if(ti->read_response[work_id].finished == 1){
-                //printf("Worker finished!\n");
             ti->work_times[work_id] = ti->read_response[work_id].completion_time;
-                //printf("Time now%d\n", ti->work_times[work_id]);
             ti->read_response[work_id].finished = 0;
             break;
-            //}
             pthread_mutex_unlock(&ti->read_resp_lock[work_id]);
         }
     }
 }
 
+/* Send a monitor with the appropriate info to the write queue
+    for the disc to see */
 void write_file(void* thread_info, int o, int work_id){
     /* Read a 1 kiB record from input file i */
     info *ti = (info *)(thread_info);
@@ -153,38 +128,10 @@ void write_file(void* thread_info, int o, int work_id){
         for(;;){
             pthread_mutex_lock(&ti->write_resp_lock[work_id]);
             pthread_cond_wait(&ti->write_resp_fin[work_id],&ti->write_resp_lock[work_id]);
-            //if(ti->read_response[work_id].finished == 1){
-                //printf("Worker finished!\n");
             ti->work_times[work_id] = ti->write_response[work_id].completion_time;
-                //printf("Time now%d\n", ti->work_times[work_id]);
             ti->write_response[work_id].finished = 0;
             break;
-            //}
             pthread_mutex_unlock(&ti->write_resp_lock[work_id]);
         }
     }
 }
-/*
-void write_file(void* thread_info,int i, int d, int count, int work_id, char* write_buf){
-    //write that 1 kiB record to output file o
-    info ti = *((info *)(thread_info));
-    pthread_mutex_lock(&ti.write_mons[d]);
-
-    mon temp;
-
-    temp.block_number = count;
-    temp.buffer_addr = write_buf;
-    temp.request_time = ti.work_times[work_id];
-    temp.work_id = work_id;
-    temp.finished = 0;
-
-    //increment time by 1 before write
-    ti.work_times[work_id] = ti.work_times[work_id] + 1;
-
-    write_circ_buf(&ti.write_queues[d], &temp);
-    //printf("Reciept time:%d\n",ti.write_mons[d].completion_time);
-    pthread_mutex_unlock(&ti.write_mons[d]);
-
-    //call writer
-}
-*/

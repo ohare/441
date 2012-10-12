@@ -10,8 +10,7 @@
 //void write_circ_buf(circ_buf *c, mon *monitor){
 void write_circ_buf(circ_buf *c, int count, char* write_buf, int req_time, int work_id, int finished){
 
-    /* Set monitor pointer */
-    //c->content[c->tail] = monitor;
+    /* Set monitor fields */
     free(c->content[c->tail]);
     c->content[c->tail] = emalloc(sizeof(mon));
     c->content[c->tail]->block_number = count;
