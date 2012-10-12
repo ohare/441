@@ -24,13 +24,18 @@ void *disc_start(void *args){
     for(;;){
         //pthread_mutex_lock(&thread_info.read_mons[disc_id]);
         /* If requests in the read queue to process */
-        //if(!(is_circ_empty(&thread_info.read_queues[disc_id]))){    
+        if(!(is_circ_empty(&thread_info.read_queues[disc_id]))){    
             //printf("Stuff to read\n");
             /* Should this be being locked? */
-        temp = read_circ_buf(&thread_info.read_queues[disc_id]);
+        //pthread_mutex_lock(&thread_info.read_mons[disc_id]);
+        //pthread_cond_wait(&thread_info.read_ready[disc_id],
+        //    &thread_info.read_mons[disc_id]);
+            temp = read_circ_buf(&thread_info.read_queues[disc_id]);
 
-        read(temp, &thread_info,disc_id);
-        //}
+            read(temp, &thread_info,disc_id);
+        //pthread_mutex_unlock(&thread_info.read_mons[disc_id]);
+        //printf("Read\n");
+        }
         //pthread_mutex_unlock(&thread_info.read_mons[disc_id]);
         
         /* If requests in the write queue to process */
@@ -42,7 +47,15 @@ void *disc_start(void *args){
             write(temp, &thread_info,disc_id);
             //pthread_mutex_unlock(&thread_info.write_mons[disc_id]);
         }
-
+        /*
+        pthread_mutex_lock(&thread_info.write_mons[disc_id]);
+        pthread_cond_wait(&thread_info.write_ready[disc_id],
+            &thread_info.write_mons[disc_id]);
+        temp = read_circ_buf(&thread_info.write_queues[disc_id]);
+        write(temp, &thread_info,disc_id);
+        pthread_mutex_unlock(&thread_info.write_mons[disc_id]);
+        printf("Write\n");
+        */
         /* If both queues are empty and the kill flag has been set, exit */
         if(is_circ_empty(&thread_info.write_queues[disc_id]) &&
             is_circ_empty(&thread_info.read_queues[disc_id]) &&

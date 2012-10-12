@@ -36,6 +36,8 @@ int main(int argc, char *argv[]){
     /* and conditions */
     thread_info.read_resp_fin = emalloc(sizeof(pthread_cond_t) * W);
     thread_info.write_resp_fin = emalloc(sizeof(pthread_cond_t) * W);
+    thread_info.read_ready = emalloc(sizeof(pthread_cond_t) * D);
+    thread_info.write_ready = emalloc(sizeof(pthread_cond_t) * D);
 
     /* Initialise array of read/write queues for disc */
     thread_info.read_queues = emalloc(sizeof(circ_buf) * D);
@@ -85,6 +87,12 @@ int main(int argc, char *argv[]){
         }
         if (pthread_mutex_init(&(thread_info.write_mons[i]), &mutex_attr) != 0){
             printf("\nMaster: %d, disc write mutex init failed\n",i);
+        }
+        if (pthread_cond_init(&(thread_info.read_ready[i]), &cond_attr) != 0){
+            printf("\nMaster: %d, worker read response cond init failed\n",i);
+        }
+        if (pthread_cond_init(&(thread_info.write_ready[i]), &cond_attr) != 0){
+            printf("\nMaster: %d, worker write response cond init failed\n",i);
         }
         thread_info.read_queues[i].head = 0;
         thread_info.read_queues[i].tail = 0;

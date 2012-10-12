@@ -59,7 +59,7 @@ void *work(void *args){
         //read from block 0 of file i
         read_file(&thread_info,i,work_id);
         //write at block 0 of file o
-        //write_file(&thread_info,o,d,count,work_id, write_buf);
+        write_file(&thread_info,o,work_id);
 
     /*
         //release write lock on file o
@@ -94,6 +94,7 @@ void read_file(void* thread_info, int i, int work_id){
             //pthread_mutex_lock(&ti->read_mons[d]);
             if(!is_circ_full(&ti->read_queues[d])){
                 write_circ_buf(&ti->read_queues[d], block_on_disc, *read_buffers, ti->work_times[work_id], work_id, 0);
+                /* Signal disc */
                 break;
             }
             //pthread_mutex_unlock(&ti->read_mons[d]);
