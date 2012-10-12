@@ -22,28 +22,33 @@ void *disc_start(void *args){
     printf("I am disc:%d\n", disc_id);
 
     for(;;){
-        pthread_mutex_lock(&thread_info.read_mons[disc_id]);
-        if(!(is_circ_empty(&thread_info.read_queues[disc_id]))){    
+        //pthread_mutex_lock(&thread_info.read_mons[disc_id]);
+        /* If requests in the read queue to process */
+        //if(!(is_circ_empty(&thread_info.read_queues[disc_id]))){    
             //printf("Stuff to read\n");
             /* Should this be being locked? */
-            temp = read_circ_buf(&thread_info.read_queues[disc_id]);
+        temp = read_circ_buf(&thread_info.read_queues[disc_id]);
 
-            read(temp, &thread_info,disc_id);
-        }
-        pthread_mutex_unlock(&thread_info.read_mons[disc_id]);
-        /*
+        read(temp, &thread_info,disc_id);
+        //}
+        //pthread_mutex_unlock(&thread_info.read_mons[disc_id]);
+        
+        /* If requests in the write queue to process */
         if(!(is_circ_empty(&thread_info.write_queues[disc_id]))){    
             //printf("Stuff to write\n");
             temp = read_circ_buf(&thread_info.write_queues[disc_id]);
             //Lock mutex, write, release
-            pthread_mutex_lock(temp->lock);
-            write(&thread_info.write_mons[work_id], &thread_info,disc_id);
-            pthread_mutex_unlock(&thread_info.write_mons[disc_id].lock);
-        }*/
+            //pthread_mutex_lock(&thread_info.write_mons[disc_id]);
+            write(temp, &thread_info,disc_id);
+            //pthread_mutex_unlock(&thread_info.write_mons[disc_id]);
+        }
+
+        /* If both queues are empty and the kill flag has been set, exit */
         if(is_circ_empty(&thread_info.write_queues[disc_id]) &&
             is_circ_empty(&thread_info.read_queues[disc_id]) &&
             thread_info.disc_kill[disc_id] == 1){
-            printf("Disc:%d finished disc clock:%d\n",disc_id,thread_info.disc_times[disc_id]);
+            printf("Disc:%d finished disc clock:%d\n",disc_id,
+                thread_info.disc_times[disc_id]);
             break;
         }
         //printf("Thread:%u, Num:%d\n",pthread_self(),(*(int *) args));
@@ -67,7 +72,7 @@ int read(mon *rmon, info *i, int disc_id){
     //printf("Read: disc clock is now:%d\n",i->disc_times[disc_id]);
 
     /* Set the receipt time */
-    rmon->receipt_time = i->disc_times[disc_id];
+    //rmon->receipt_time = i->disc_times[disc_id];
     temp.receipt_time = i->disc_times[disc_id];
 
     //Pretend to read in memory to buffer
@@ -77,23 +82,15 @@ int read(mon *rmon, info *i, int disc_id){
     //printf("Read: disc clock is now:%d\n",i->disc_times[disc_id]);
 
     /* Set the completion time */
-    rmon->completion_time = i->disc_times[disc_id];
+    //rmon->completion_time = i->disc_times[disc_id];
     temp.completion_time = i->disc_times[disc_id];
-    temp.finished = 1;
 
-    //do anything else it needs to let requestor know to proceed
+    //Let the requestor know to proceed
 
-    /* Set response flag monitor */
-    //write_circ_buf(&ti.read_queues[d], &temp);
-    //write_circ_buf(&i.read_response[work_id], &temp);
-    //printf("Pre fault\n");
-    //printf("D Work id%d\n",work_id);
-    i->read_response[work_id].finished = 1;
-    //printf("Finsished? %d\n",i->read_response[work_id].finished);
+    /* Set the monitor with the completion time to requestor */
     i->read_response[work_id] = temp;
-    //printf("Wrote to mon!\n");
-    //printf("D Finsished? %d\n",i->read_response[work_id].finished);
 
+    /* Signal the finished condition so requestor knows to proceed */
     pthread_cond_signal(&(i->read_resp_fin[work_id]));
 
     /* Unlock write response queue */
@@ -103,26 +100,43 @@ int read(mon *rmon, info *i, int disc_id){
 }
 
 //'Write' to buffer
-int write(wm *wmon, info *i, int disc_id){
+int write(mon *wmon, info *i, int disc_id){
+    mon temp;
+    int work_id = wmon->work_id;
+
+    /* Lock read response queue */
+    pthread_mutex_lock(&(i->write_resp_lock[work_id]));
 
     if(wmon->request_time > i->disc_times[disc_id]){
         i->disc_times[disc_id] = wmon->request_time;
     }
 
-    //printf("Write: Disk clock is now:%d\n",my_clock);
+    //printf("Write: disc clock is now:%d\n",i->disc_times[disc_id]);
 
-    wmon->receipt_time = i->disc_times[disc_id];
+    /* Set the receipt time */
+    //wmon->receipt_time = i->disc_times[disc_id];
+    temp.receipt_time = i->disc_times[disc_id];
 
-    //Pretend to write to buffer
+    //Pretend to read in memory to buffer
 
-    printf("Disk time:%d\n",i->disc_times[disc_id]);
+    /* Update the disc time */
     i->disc_times[disc_id] += 10 + 12 * drand48();
-    printf("Disk time:%d\n",i->disc_times[disc_id]);
+    //printf("Read: disc clock is now:%d\n",i->disc_times[disc_id]);
 
-    wmon->completion_time = i->disc_times[disc_id];
-    printf("Disk time:%d\n",i->disc_times[disc_id]);
+    /* Set the completion time */
+    //wmon->completion_time = i->disc_times[disc_id];
+    temp.completion_time = i->disc_times[disc_id];
 
-    //do anything else it needs to let requestor know to proceed
+    //Let the requestor know to proceed
+
+    /* Set the monitor with the completion time to requestor */
+    i->write_response[work_id] = temp;
+
+    /* Signal the finished condition so requestor knows to proceed */
+    pthread_cond_signal(&(i->write_resp_fin[work_id]));
+
+    /* Unlock write response queue */
+    pthread_mutex_unlock(&(i->write_resp_lock[work_id]));
 
     return 0;
 }

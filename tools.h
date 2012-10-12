@@ -55,7 +55,9 @@ typedef struct info_t{
     mon *read_response;
     mon *write_response;
     pthread_mutex_t *read_mons;
+    pthread_cond_t *read_ready;
     pthread_mutex_t *write_mons;
+    pthread_cond_t *write_ready;
     pthread_mutex_t *read_resp_lock;
     pthread_cond_t *read_resp_fin;
     pthread_mutex_t *write_resp_lock;
