@@ -10,6 +10,7 @@
 
 #define BLOCK_SIZE_IN_KIB 4
 #define BLOCK_SIZE 4096
+/* Had to reduce blocks per file as program was running too slowly */
 #define BLOCKS_PER_FILE 250
 
 void *work(void *args){
@@ -17,7 +18,7 @@ void *work(void *args){
     int o = 0;
     //int d = 0;
     int F = 1000;
-    //int count = 0;
+    int count = 0;
     //int blocks_per_file = 250;
     //int work_id = *((int *) L);
     int work_id = 0;
@@ -30,56 +31,49 @@ void *work(void *args){
 
     work_id = get_id(&thread_info, pthread_self());
 
-    printf("IamA Worker %d\n",work_id);
+    printf("I am worker %d\n",work_id);
         
-    //For testing
-    /*
-    pthread_mutex_lock(&thread_info.read_mons[d].lock);
-    write_circ_buf(&thread_info.read_queues[d], work_id);
-    pthread_mutex_unlock(&thread_info.read_mons[d].lock);
+    /* For L iterations */
+    for(count = 0; count < thread_info.L; count++){
+        while(i == o){
+            i = F * drand48();
+            o = F * drand48();
+        }
+
+        printf("Input file:%d\n",i);
+        printf("Output file:%d\n",o);
+
+    /* TODO implement file locks?
+        if(i < o){
+            //obtain a read lock on file i
+            pthread_mutex_lock(&thread_info.read_mons[work_id].lock);
+            //obtain a write lock on file o
+            pthread_mutex_lock(&thread_info.write_mons[work_id].lock);
+        } else {
+            //obtain a write lock on file o
+            pthread_mutex_lock(&thread_info.write_mons[work_id].lock);
+            //obtain a read lock on file i
+            pthread_mutex_lock(&thread_info.read_mons[work_id].lock);
+        }
     */
-    
-    while(i == o){
-        i = F * drand48();
-        o = F * drand48();
+        //read from block 0 of file i
+        read_file(&thread_info,i,work_id);
+        //write at block 0 of file o
+        //write_file(&thread_info,o,d,count,work_id, write_buf);
+
+    /*
+        //release write lock on file o
+        pthread_mutex_unlock(&thread_info.write_mons[work_id].lock);
+        //release read lock on file i
+        pthread_mutex_unlock(&thread_info.read_mons[work_id].lock);
+    */
     }
 
-    printf("Input file:%d\n",i);
-    printf("Output file:%d\n",o);
-
-/* TODO implement file locks?
-    if(i < o){
-        //obtain a read lock on file i
-        pthread_mutex_lock(&thread_info.read_mons[work_id].lock);
-        //obtain a write lock on file o
-        pthread_mutex_lock(&thread_info.write_mons[work_id].lock);
-    } else {
-        //obtain a write lock on file o
-        pthread_mutex_lock(&thread_info.write_mons[work_id].lock);
-        //obtain a read lock on file i
-        pthread_mutex_lock(&thread_info.read_mons[work_id].lock);
-    }
-*/
-    //read from block 0 of file i
-    //write at block 0 of file o
-
-    //printf("Up to %d\n",count);
-    read_file(&thread_info,i,work_id);
-    //write_file(&thread_info,o,d,count,work_id, write_buf);
-
-/*
-    //release write lock on file o
-    pthread_mutex_unlock(&thread_info.write_mons[work_id].lock);
-    //release read lock on file i
-    pthread_mutex_unlock(&thread_info.read_mons[work_id].lock);
-*/
     return 0;
 }
 
 void read_file(void* thread_info, int i, int work_id){
     /* Read a 1 kiB record from input file i */
-    //mon temp;
-    //mon *ret_mon;
     info *ti = (info *)(thread_info);
     char* read_buffers[BUF_SIZE];
     int d = 0;
@@ -93,15 +87,6 @@ void read_file(void* thread_info, int i, int work_id){
         block_on_disc = x / ti->D;
         /* Lock read queue */
         pthread_mutex_lock(&ti->read_mons[d]);
-
-        /* Create monitor */
-        /*
-        temp.block_number = count;
-        temp.buffer_addr = read_buf;
-        temp.request_time = ti->work_times[work_id];
-        temp.work_id = work_id;
-        temp.finished = 0;
-        */
 
         /* Write monitor to queue if there is space */
         //pthread_mutex_unlock(&ti->read_mons[d]);
@@ -121,10 +106,6 @@ void read_file(void* thread_info, int i, int work_id){
         /* Unlock queue */
         pthread_mutex_unlock(&ti->read_mons[d]);
 
-        clock_t begin, end;
-        double time_spent;
-        begin = clock();
-        //printf("W Work id %d\n",work_id);
         /* Get back completion time from disc */
         for(;;){
             //printf("Waiting for response\n");
@@ -140,13 +121,6 @@ void read_file(void* thread_info, int i, int work_id){
             //}
             pthread_mutex_unlock(&ti->read_resp_lock[work_id]);
         }
-        end = clock();
-        time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-        //printf("Clock time: %f\n",time_spent);
-
-        //printf("One\n");
-        //printf("Comp time:%d\n",ti.read_mons[d].completion_time);
-        //ti.work_times[work_id] = ti.read_mons[d].completion_time;
     }
 }
 
