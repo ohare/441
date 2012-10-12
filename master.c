@@ -50,8 +50,6 @@ int main(int argc, char *argv[]){
     //thread_info.read_response = emalloc(sizeof(mon) * W);
     //thread_info.write_response = emalloc(sizeof(mon) * W);
 
-    thread_info.workers = emalloc(sizeof(worker) * W);
-
     /* Initialise array of ids */
     thread_info.disc_ids = emalloc(sizeof(int) * D);
     thread_info.work_ids = emalloc(sizeof(int) * W);
@@ -123,8 +121,6 @@ int main(int argc, char *argv[]){
         if (pthread_cond_init(&(thread_info.write_resp_fin[i]), &cond_attr) != 0){
             printf("\nMaster: %d, worker write response cond init failed\n",i);
         }
-        thread_info.workers[i].time = 0;
-        thread_info.workers[i].read_resp.finished = 0;
         printf("Creating worker thread %d\n", i);
         rc = pthread_create(&worker_threads[i], NULL, work, &thread_info);
         if(rc != 0){

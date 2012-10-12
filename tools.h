@@ -14,24 +14,6 @@ typedef struct monitor{
     void* buffer_addr;
 } mon;
 
-typedef struct read_monitor{
-    pthread_mutex_t lock;
-    int block_number;
-    void* buffer_addr;
-    int request_time;
-    int receipt_time;
-    int completion_time;
-} rm;
-
-typedef struct write_monitor{
-    pthread_mutex_t lock;
-    int block_number;
-    void* buffer_addr;
-    int request_time;
-    int receipt_time;
-    int completion_time;
-} wm;
-
 //Used as queue for disc requests
 typedef struct circular_buffer{
     int head;
@@ -39,12 +21,6 @@ typedef struct circular_buffer{
     pthread_mutex_t lock;
     mon *content[BUFFER_SIZE];
 } circ_buf;
-
-typedef struct worker_t{
-    mon read_resp;
-    mon write_resp;
-    int time;
-} worker;
 
 typedef struct info_t{
     int D;
@@ -54,6 +30,8 @@ typedef struct info_t{
     pthread_t *work_ids;
     mon *read_response;
     mon *write_response;
+    /* These should all really be in disc and worker structs
+        could also cut out some of them. */
     pthread_mutex_t *read_mons;
     pthread_cond_t *read_ready;
     pthread_mutex_t *write_mons;
@@ -67,12 +45,10 @@ typedef struct info_t{
     int *disc_kill;
     int *disc_times;
     int *work_times;
-    worker *workers;
     circ_buf *read_queues;
     circ_buf *write_queues;
 } info;
 
-//void write_circ_buf(circ_buf *c, mon *monitor);
 void write_circ_buf(circ_buf *c, int count, char* write_buf, int req_time, int work_id, int finished);
 mon *read_circ_buf(circ_buf *c);
 int is_circ_empty(circ_buf *c);

@@ -38,7 +38,6 @@ void write_circ_buf(circ_buf *c, int count, char* write_buf, int req_time, int w
  */
 mon *read_circ_buf(circ_buf *c){
     mon *read;
-    mon temp;
 
     read = c->content[c->head];
     c->head++;

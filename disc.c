@@ -4,12 +4,10 @@
 #include "disc.h"
 #include "tools.h"
 
+/* Main disc thread, reads requests and calls read/write functions */
 void *disc_start(void *args){
     mon *temp;
-    int work_id = 0;
-    //int disc_id = (*(int *) args);
     int disc_id = 0;
-    //info thread_info = *((info *)(args));
     info thread_info = *((info *)(args));
 
     //printf("(disc_start) info addr:%d\n",&thread_info);
@@ -25,37 +23,21 @@ void *disc_start(void *args){
         //pthread_mutex_lock(&thread_info.read_mons[disc_id]);
         /* If requests in the read queue to process */
         if(!(is_circ_empty(&thread_info.read_queues[disc_id]))){    
-            //printf("Stuff to read\n");
-            /* Should this be being locked? */
-        //pthread_mutex_lock(&thread_info.read_mons[disc_id]);
-        //pthread_cond_wait(&thread_info.read_ready[disc_id],
-        //    &thread_info.read_mons[disc_id]);
             temp = read_circ_buf(&thread_info.read_queues[disc_id]);
 
             read(temp, &thread_info,disc_id);
-        //pthread_mutex_unlock(&thread_info.read_mons[disc_id]);
-        //printf("Read\n");
         }
         //pthread_mutex_unlock(&thread_info.read_mons[disc_id]);
         
         /* If requests in the write queue to process */
         if(!(is_circ_empty(&thread_info.write_queues[disc_id]))){    
-            //printf("Stuff to write\n");
             temp = read_circ_buf(&thread_info.write_queues[disc_id]);
             //Lock mutex, write, release
             //pthread_mutex_lock(&thread_info.write_mons[disc_id]);
             write(temp, &thread_info,disc_id);
             //pthread_mutex_unlock(&thread_info.write_mons[disc_id]);
         }
-        /*
-        pthread_mutex_lock(&thread_info.write_mons[disc_id]);
-        pthread_cond_wait(&thread_info.write_ready[disc_id],
-            &thread_info.write_mons[disc_id]);
-        temp = read_circ_buf(&thread_info.write_queues[disc_id]);
-        write(temp, &thread_info,disc_id);
-        pthread_mutex_unlock(&thread_info.write_mons[disc_id]);
-        printf("Write\n");
-        */
+
         /* If both queues are empty and the kill flag has been set, exit */
         if(is_circ_empty(&thread_info.write_queues[disc_id]) &&
             is_circ_empty(&thread_info.read_queues[disc_id]) &&
@@ -82,10 +64,7 @@ int read(mon *rmon, info *i, int disc_id){
         i->disc_times[disc_id] = rmon->request_time;
     }
 
-    //printf("Read: disc clock is now:%d\n",i->disc_times[disc_id]);
-
     /* Set the receipt time */
-    //rmon->receipt_time = i->disc_times[disc_id];
     temp.receipt_time = i->disc_times[disc_id];
 
     //Pretend to read in memory to buffer
@@ -95,7 +74,6 @@ int read(mon *rmon, info *i, int disc_id){
     //printf("Read: disc clock is now:%d\n",i->disc_times[disc_id]);
 
     /* Set the completion time */
-    //rmon->completion_time = i->disc_times[disc_id];
     temp.completion_time = i->disc_times[disc_id];
 
     //Let the requestor know to proceed
@@ -124,8 +102,6 @@ int write(mon *wmon, info *i, int disc_id){
         i->disc_times[disc_id] = wmon->request_time;
     }
 
-    //printf("Write: disc clock is now:%d\n",i->disc_times[disc_id]);
-
     /* Set the receipt time */
     //wmon->receipt_time = i->disc_times[disc_id];
     temp.receipt_time = i->disc_times[disc_id];
@@ -134,10 +110,9 @@ int write(mon *wmon, info *i, int disc_id){
 
     /* Update the disc time */
     i->disc_times[disc_id] += 10 + 12 * drand48();
-    //printf("Read: disc clock is now:%d\n",i->disc_times[disc_id]);
+    //printf("Write: disc clock is now:%d\n",i->disc_times[disc_id]);
 
     /* Set the completion time */
-    //wmon->completion_time = i->disc_times[disc_id];
     temp.completion_time = i->disc_times[disc_id];
 
     //Let the requestor know to proceed
