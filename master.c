@@ -33,6 +33,9 @@ int main(int argc, char *argv[]){
     thread_info.write_mons = emalloc(sizeof(pthread_mutex_t) * D);
     thread_info.read_resp_lock = emalloc(sizeof(pthread_mutex_t) * W);
     thread_info.write_resp_lock = emalloc(sizeof(pthread_mutex_t) * W);
+    /* and conditions */
+    thread_info.read_resp_fin = emalloc(sizeof(pthread_cond_t) * W);
+    thread_info.write_resp_fin = emalloc(sizeof(pthread_cond_t) * W);
 
     /* Initialise array of read/write queues for disc */
     thread_info.read_queues = emalloc(sizeof(circ_buf) * D);
@@ -68,6 +71,11 @@ int main(int argc, char *argv[]){
     //Set PTHREAD_MUTEX_ERRORCHECK
     pthread_mutexattr_t mutex_attr;
     pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_ERRORCHECK);
+    //Set up conditional attr
+    pthread_condattr_t cond_attr;
+    if (pthread_condattr_init(&cond_attr) != 0){
+        printf("\nMaster: Cond_attr init failed\n");
+    }
 
     //starts D disc threads
     for (i=0; i < D; ++i) {
@@ -101,6 +109,12 @@ int main(int argc, char *argv[]){
         if (pthread_mutex_init(&(thread_info.write_resp_lock[i]), &mutex_attr) != 0){
             printf("\nMaster: %d, worker write response mutex init failed\n",i);
         }
+        if (pthread_cond_init(&(thread_info.read_resp_fin[i]), &cond_attr) != 0){
+            printf("\nMaster: %d, worker read response cond init failed\n",i);
+        }
+        if (pthread_cond_init(&(thread_info.write_resp_fin[i]), &cond_attr) != 0){
+            printf("\nMaster: %d, worker write response cond init failed\n",i);
+        }
         thread_info.workers[i].time = 0;
         thread_info.workers[i].read_resp.finished = 0;
         printf("Creating worker thread %d\n", i);
@@ -116,6 +130,7 @@ int main(int argc, char *argv[]){
     for(i=0; i < W; i++){
         rc = pthread_join(worker_threads[i], NULL);
         //printf("Return code of worker thread:%d was:%d\n",i,rc);
+        //Reports how long each worker took
         printf("Worker:%d finished clock:%d\n",i,thread_info.work_times[i]);
     }
 
@@ -126,10 +141,8 @@ int main(int argc, char *argv[]){
     //waits for disc threads to complete
     for(i=0; i < D; i++){
        rc = pthread_join(disc_threads[i], NULL);
-       printf("Return code of disc thread:%d was:%d\n",i,rc);
+       //printf("Return code of disc thread:%d was:%d\n",i,rc);
     }
-
-    //reports how long each worker took
 
     exit(EXIT_SUCCESS); 
 }

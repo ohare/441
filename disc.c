@@ -57,6 +57,9 @@ int read(mon *rmon, info *i, int disc_id){
     mon temp;
     int work_id = rmon->work_id;
 
+    /* Lock read response queue */
+    pthread_mutex_lock(&(i->read_resp_lock[work_id]));
+
     if(rmon->request_time > i->disc_times[disc_id]){
         i->disc_times[disc_id] = rmon->request_time;
     }
@@ -79,8 +82,6 @@ int read(mon *rmon, info *i, int disc_id){
     temp.finished = 1;
 
     //do anything else it needs to let requestor know to proceed
-    /* Lock read response queue */
-    //pthread_mutex_lock(&(i->read_resp_lock[work_id]));
 
     /* Set response flag monitor */
     //write_circ_buf(&ti.read_queues[d], &temp);
@@ -94,7 +95,7 @@ int read(mon *rmon, info *i, int disc_id){
     //printf("D Finsished? %d\n",i->read_response[work_id].finished);
 
     /* Unlock write response queue */
-    //pthread_mutex_unlock(&(i->read_resp_lock[work_id]));
+    pthread_mutex_unlock(&(i->read_resp_lock[work_id]));
 
     return 0;
 }

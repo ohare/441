@@ -4,6 +4,7 @@
 #include "tools.h"
 #include "worker.h"
 #include "assert.h"
+#include "time.h"
 
 #define BUF_SIZE 4096
 
@@ -120,11 +121,15 @@ void read_file(void* thread_info, int i, int work_id){
         /* Unlock queue */
         pthread_mutex_unlock(&ti->read_mons[d]);
 
+        clock_t begin, end;
+        double time_spent;
+        begin = clock();
         //printf("W Work id %d\n",work_id);
         /* Get back completion time from disc */
         for(;;){
             //printf("Waiting for response\n");
             //printf("Fin?? %d\n",ti->read_response[work_id].finished);
+            pthread_mutex_lock(&ti->read_resp_lock[work_id]);
             if(ti->read_response[work_id].finished == 1){
                 //printf("Worker finished!\n");
                 ti->work_times[work_id] = ti->read_response[work_id].completion_time;
@@ -132,7 +137,11 @@ void read_file(void* thread_info, int i, int work_id){
                 ti->read_response[work_id].finished = 0;
                 break;
             }
+            pthread_mutex_unlock(&ti->read_resp_lock[work_id]);
         }
+        end = clock();
+        time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+        //printf("Clock time: %f\n",time_spent);
 
         //printf("One\n");
         //printf("Comp time:%d\n",ti.read_mons[d].completion_time);
