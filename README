@@ -1,3 +1,26 @@
 Calum O'Hare
 COSC441 Assignment 1
-August 2012
+October 2012
+
+Notes:
+    My program runs very slowly so I have reduced the number of blocks per file.
+    I would liked to have spent more time fixing this.
+
+Design:
+    Master.c: starts worker and disc threads and initialises 
+        shared memory variables
+    Worker.c: for L iterations calls read and write methods,
+        these would have been implemented as threads if I had the time.
+        Read and write send messages to a queue which I have implemented
+        as a circular buffer.
+    Disc.c: checks to see if queues are non-empty if they are then
+        it gets the monitor from the queue and processes the request
+        (Pretends to read from the disk to the buffer). One it has
+        processed the request it puts a new monitor into a worker
+        queue and sets a condition to let the worker know to read
+        the completion time from the monitor in that queue.
+
+
+Cheers,
+
+Calum O'Hare
